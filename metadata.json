@@ -1,0 +1,7 @@
+{
+  "name": "Dr. HVAC - Sarah AI Receptionist",
+  "description": "Voice-enabled AI receptionist for Dr. HVAC, handling rebates and emergency bookings using Gemini Live API.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
