@@ -50,9 +50,30 @@ const App: React.FC = () => {
            </div>
            
            <nav className="hidden lg:flex items-center gap-10 text-[14px] font-black uppercase tracking-widest text-[#004a99]">
-             <button onClick={() => scrollToSection('sarah-agent')} className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1">Heating</button>
-             <button onClick={() => scrollToSection('sarah-agent')} className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1">Cooling</button>
-             <button onClick={() => scrollToSection('faq-section')} className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1">Rebates</button>
+             <a 
+               href="https://www.drhvac.ca/heating/" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1"
+             >
+               Heating
+             </a>
+             <a 
+               href="https://www.drhvac.ca/air-conditioning/" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1"
+             >
+               Cooling
+             </a>
+             <a 
+               href="https://www.drhvac.ca/promotions-rebates/" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1"
+             >
+               Rebates
+             </a>
              <button 
                onClick={() => scrollToSection('sarah-agent')}
                className="bg-[#f37021] text-white px-10 py-5 rounded-xl shadow-xl shadow-orange-500/40 transform hover:-translate-y-1 active:translate-y-0 transition-all font-black text-[15px] uppercase tracking-tight"
@@ -87,7 +108,7 @@ const App: React.FC = () => {
                href="https://www.drhvac.ca/guarantee/" 
                target="_blank" 
                rel="noopener noreferrer"
-               className="flex flex-col items-center group text-center p-12 bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl transition-all hover:shadow-orange-500/20 hover:-translate-y-2 hover:border-orange-400 w-full max-w-sm"
+               className="flex flex-col items-center group text-center p-12 bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl transition-all hover:shadow-orange-500/20 hover:-translate-y-2 hover:border-orange-400 w-full max-sm"
              >
                 <div className="mb-6">
                   <span className="text-6xl font-black text-black tracking-tighter block group-hover:text-[#f37021] transition-colors">100%</span>

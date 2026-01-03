@@ -74,7 +74,7 @@ const FAQSection: React.FC = () => {
       
       <div className="mt-12 text-center">
         <p className="text-[14px] text-slate-500 font-black uppercase tracking-widest">
-          Need more help? <span className="text-[#004a99] hover:text-[#f37021] cursor-pointer transition-colors border-b-2 border-blue-100 pb-0.5 ml-2">Speak with a Live Human</span>
+          Need more help? <a href="https://www.drhvac.ca/contact/" target="_blank" rel="noopener noreferrer" className="text-[#004a99] hover:text-[#f37021] cursor-pointer transition-colors border-b-2 border-blue-100 pb-0.5 ml-2">Speak with a Live Human</a>
         </p>
       </div>
     </div>
