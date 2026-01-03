@@ -17,9 +17,7 @@ const Visualizer: React.FC<VisualizerProps> = ({ isActive, audioContext, sourceN
     if (!isActive || !audioContext || !sourceNode || !canvasRef.current) return;
 
     const analyser = audioContext.createAnalyser();
-    // FFT Size 64 gives 32 frequency bins, creating nice chunky bars
     analyser.fftSize = 64; 
-    // Native smoothing (we'll also do custom interpolation for better control)
     analyser.smoothingTimeConstant = 0.3;
     
     sourceNode.connect(analyser);
@@ -41,54 +39,36 @@ const Visualizer: React.FC<VisualizerProps> = ({ isActive, audioContext, sourceN
 
       analyserRef.current.getByteFrequencyData(dataArrayRef.current);
 
-      // Clear canvas
-      ctx.fillStyle = 'rgb(248, 250, 252)'; // bg-slate-50
+      ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const barCount = bufferLength;
       const totalAvailableWidth = canvas.width;
-      const gap = 4; 
+      const gap = 6; 
       const barWidth = (totalAvailableWidth / barCount) - gap;
       
-      let x = gap / 2; // Start with half gap padding
+      let x = gap / 2;
 
       for (let i = 0; i < barCount; i++) {
-        // Normalize value (0-255)
         const val = dataArrayRef.current[i];
+        const targetHeight = (val / 255) * canvas.height * 0.85;
         
-        // Calculate target height relative to canvas
-        // Multiply by 0.9 to leave some headroom
-        const targetHeight = (val / 255) * canvas.height * 0.9;
-        
-        // LERP for smooth bounce animation
-        // current = current + (target - current) * speed
-        // 0.25 provides a responsive yet smooth feel
         currentHeightsRef.current[i] += (targetHeight - currentHeightsRef.current[i]) * 0.25;
-        
-        // Ensure a tiny minimum height so bars don't disappear completely
-        const drawHeight = Math.max(4, currentHeightsRef.current[i]);
+        const drawHeight = Math.max(6, currentHeightsRef.current[i]);
 
-        // Dynamic Color Calculation
-        // Calculate intensity ratio (0 to 1)
         const intensity = drawHeight / canvas.height;
-        
-        // Shift Hue: Blue (210) -> Purple/Pink (280) based on loudness
-        const hue = 210 + (intensity * 70);
-        // Increase lightness slightly for "glow" effect at high volumes
-        const lightness = 50 + (intensity * 20);
+        const hue = 215 + (intensity * 60);
+        const lightness = 55 + (intensity * 15);
 
-        // Gradient for the bar
         const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - drawHeight);
-        gradient.addColorStop(0, '#3b82f6'); // Base Blue-500
-        gradient.addColorStop(1, `hsl(${hue}, 90%, ${lightness}%)`); // Dynamic energetic top
+        gradient.addColorStop(0, '#2563eb'); 
+        gradient.addColorStop(1, `hsl(${hue}, 85%, ${lightness}%)`);
 
         ctx.fillStyle = gradient;
         
-        // Draw Rounded Bar
         ctx.beginPath();
-        // Use roundRect if available (modern browsers), otherwise rect
         if (ctx.roundRect) {
-            ctx.roundRect(x, canvas.height - drawHeight, barWidth, drawHeight, [4, 4, 0, 0]);
+            ctx.roundRect(x, canvas.height - drawHeight, barWidth, drawHeight, [6, 6, 0, 0]);
         } else {
             ctx.rect(x, canvas.height - drawHeight, barWidth, drawHeight);
         }
@@ -108,15 +88,18 @@ const Visualizer: React.FC<VisualizerProps> = ({ isActive, audioContext, sourceN
 
   if (!isActive) {
     return (
-      <div className="w-full h-32 flex items-center justify-center bg-slate-100 rounded-lg border border-slate-200">
-        <div className="flex flex-col items-center gap-2">
-           <div className="flex gap-1">
-             <div className="w-1 h-3 bg-slate-300 rounded-full animate-pulse"></div>
-             <div className="w-1 h-5 bg-slate-300 rounded-full animate-pulse delay-75"></div>
-             <div className="w-1 h-3 bg-slate-300 rounded-full animate-pulse delay-150"></div>
-           </div>
-           <span className="text-slate-400 text-sm font-medium">Ready to listen</span>
+      <div className="w-full h-32 flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-slate-100 overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/30 to-transparent animate-pulse" style={{ animationDuration: '4s' }}></div>
+        <div className="flex items-end gap-1.5 h-6 mb-3 relative z-10">
+          {[0.4, 0.7, 1, 0.6, 0.3, 0.8, 0.5].map((scale, i) => (
+            <div 
+              key={i} 
+              className="w-1 bg-slate-200 rounded-full" 
+              style={{ height: `${scale * 100}%`, transition: 'height 0.3s ease' }}
+            ></div>
+          ))}
         </div>
+        <span className="text-slate-400 text-xs font-bold uppercase tracking-widest relative z-10">System Ready</span>
       </div>
     );
   }
@@ -126,7 +109,7 @@ const Visualizer: React.FC<VisualizerProps> = ({ isActive, audioContext, sourceN
       ref={canvasRef} 
       width={600} 
       height={128} 
-      className="w-full h-32 rounded-lg border border-slate-200 bg-slate-50 shadow-inner"
+      className="w-full h-32 rounded-2xl border border-slate-100 bg-white shadow-inner"
     />
   );
 };
