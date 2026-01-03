@@ -310,63 +310,63 @@ const DrHVACVoiceAgent: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto flex flex-col gap-12">
+    <div className="w-full max-w-5xl mx-auto flex flex-col gap-8 md:gap-12">
       
       {/* STATUS BAR - EXECUTIVE PROFESSIONALISM */}
-      <div className="flex flex-row items-center justify-between gap-4 px-3 py-3 bg-white border border-slate-100/80 rounded-full shadow-[0_12px_40px_rgba(0,0,0,0.04)] animate-slide-up-fade">
-         <div className="flex items-center gap-5">
-           <div className="flex items-center gap-3 px-6 py-3 bg-[#f0f7ff] rounded-full border border-[#d2e4ff]">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-3 py-3 bg-white border border-slate-100/80 rounded-[2rem] md:rounded-full shadow-[0_12px_40px_rgba(0,0,0,0.04)] animate-slide-up-fade">
+         <div className="flex items-center gap-3 md:gap-5 w-full md:w-auto">
+           <div className="flex items-center gap-3 px-4 md:px-6 py-2.5 md:py-3 bg-[#f0f7ff] rounded-full border border-[#d2e4ff] flex-1 md:flex-none justify-center">
              <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse"></div>
-             <span className="text-[12px] font-[900] text-[#004a99] uppercase tracking-[0.05em]">AI Assistants Online</span>
+             <span className="text-[11px] md:text-[12px] font-[900] text-[#004a99] uppercase tracking-[0.05em]">AI Assistants Online</span>
            </div>
-           <p className="text-slate-500 font-[900] text-[11px] uppercase tracking-[0.2em] hidden md:block">Ready to help 24/7</p>
+           <p className="text-slate-500 font-[900] text-[10px] md:text-[11px] uppercase tracking-[0.2em] hidden md:block">Ready to help 24/7</p>
          </div>
          
-         <div className="flex items-center gap-6 pr-4">
-           <span className="text-[10px] font-[900] text-slate-300 uppercase tracking-[0.2em]">Data Engine</span>
-           <div className="flex items-center gap-3 px-5 py-2.5 bg-[#1a2333] rounded-xl shadow-[0_12px_32px_rgba(0,0,0,0.15)] transform hover:scale-105 transition-all cursor-default">
-             <div className="w-4.5 h-4.5 bg-gradient-to-br from-[#4285f4] via-[#9b72f3] to-[#34a853] rounded-[6px]"></div>
-             <span className="text-[11px] font-[900] text-white uppercase tracking-tight">Gemini 2.5 Live</span>
+         <div className="flex items-center gap-4 md:gap-6 pr-0 md:pr-4 w-full md:w-auto justify-center md:justify-end">
+           <span className="text-[9px] md:text-[10px] font-[900] text-slate-300 uppercase tracking-[0.2em]">Data Engine</span>
+           <div className="flex items-center gap-3 px-4 md:px-5 py-2 md:py-2.5 bg-[#1a2333] rounded-xl shadow-[0_12px_32px_rgba(0,0,0,0.15)] transform hover:scale-105 transition-all cursor-default">
+             <div className="w-3.5 h-3.5 md:w-4.5 md:h-4.5 bg-gradient-to-br from-[#4285f4] via-[#9b72f3] to-[#34a853] rounded-[6px]"></div>
+             <span className="text-[10px] md:text-[11px] font-[900] text-white uppercase tracking-tight">Gemini 2.5 Live</span>
            </div>
          </div>
       </div>
 
       {!isConnected || isHandingOver ? (
-        <div className={`grid md:grid-cols-2 gap-8 ${isHandingOver ? 'opacity-30 blur-md pointer-events-none grayscale scale-[0.98]' : ''} transition-all duration-700`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 ${isHandingOver ? 'opacity-30 blur-md pointer-events-none grayscale scale-[0.98]' : ''} transition-all duration-700`}>
           {/* Sarah Selector */}
-          <button onClick={() => connectToGemini('SARAH')} className="group bg-white rounded-[3.5rem] border-2 border-slate-100 p-12 text-left transition-all hover:border-[#004a99] hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full">
-            <div className="w-24 h-24 bg-[#004a99] rounded-[2rem] flex items-center justify-center text-white mb-10 shadow-xl group-hover:scale-110 transition-transform">
-              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+          <button onClick={() => connectToGemini('SARAH')} className="group bg-white rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-slate-100 p-8 md:p-12 text-left transition-all hover:border-[#004a99] hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full active:scale-95 touch-manipulation">
+            <div className="w-16 h-16 md:w-24 md:h-24 bg-[#004a99] rounded-2xl md:rounded-[2rem] flex items-center justify-center text-white mb-6 md:mb-10 shadow-xl group-hover:scale-110 transition-transform">
+              <svg className="w-8 h-8 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
             </div>
-            <h3 className="text-3xl font-[900] text-slate-900 mb-2">Talk to Sarah</h3>
-            <p className="text-[#004a99] text-[13px] font-[900] uppercase tracking-[0.4em] mb-8">Rebate Specialist</p>
-            <p className="text-slate-600 font-bold leading-relaxed mb-12 text-xl flex-grow opacity-80">Expert in identifying $7,500 rebates and coordintating furnace quotes.</p>
-            <div className="flex items-center gap-5 text-[#f37021] font-[900] uppercase text-[15px] tracking-widest group-hover:gap-8 transition-all">
+            <h3 className="text-2xl md:text-3xl font-[900] text-slate-900 mb-2">Talk to Sarah</h3>
+            <p className="text-[#004a99] text-[11px] md:text-[13px] font-[900] uppercase tracking-[0.4em] mb-4 md:mb-8">Rebate Specialist</p>
+            <p className="text-slate-600 font-bold leading-relaxed mb-6 md:mb-12 text-lg md:text-xl flex-grow opacity-80">Expert in identifying $7,500 rebates and coordintating furnace quotes.</p>
+            <div className="flex items-center gap-4 md:gap-5 text-[#f37021] font-[900] uppercase text-[13px] md:text-[15px] tracking-widest group-hover:gap-8 transition-all mt-auto">
               <span>Start Call</span>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </div>
           </button>
 
           {/* Mike Selector */}
-          <button onClick={() => connectToGemini('MIKE')} className="group bg-white rounded-[3.5rem] border-2 border-slate-100 p-12 text-left transition-all hover:border-red-600 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full">
-            <div className="w-24 h-24 bg-[#1a2333] rounded-[2rem] flex items-center justify-center text-white mb-10 shadow-xl group-hover:scale-110 transition-transform">
-              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          <button onClick={() => connectToGemini('MIKE')} className="group bg-white rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-slate-100 p-8 md:p-12 text-left transition-all hover:border-red-600 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full active:scale-95 touch-manipulation">
+            <div className="w-16 h-16 md:w-24 md:h-24 bg-[#1a2333] rounded-2xl md:rounded-[2rem] flex items-center justify-center text-white mb-6 md:mb-10 shadow-xl group-hover:scale-110 transition-transform">
+              <svg className="w-8 h-8 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </div>
-            <h3 className="text-3xl font-[900] text-slate-900 mb-2">Talk to Mike</h3>
-            <p className="text-red-600 text-[13px] font-[900] uppercase tracking-[0.4em] mb-8">Emergency Dispatch</p>
-            <p className="text-slate-600 font-bold leading-relaxed mb-12 text-xl flex-grow opacity-80">Handling critical failures with our 4-hour response guarantee.</p>
-            <div className="flex items-center gap-5 text-red-600 font-[900] uppercase text-[15px] tracking-widest group-hover:gap-8 transition-all">
+            <h3 className="text-2xl md:text-3xl font-[900] text-slate-900 mb-2">Talk to Mike</h3>
+            <p className="text-red-600 text-[11px] md:text-[13px] font-[900] uppercase tracking-[0.4em] mb-4 md:mb-8">Emergency Dispatch</p>
+            <p className="text-slate-600 font-bold leading-relaxed mb-6 md:mb-12 text-lg md:text-xl flex-grow opacity-80">Handling critical failures with our 4-hour response guarantee.</p>
+            <div className="flex items-center gap-4 md:gap-5 text-red-600 font-[900] uppercase text-[13px] md:text-[15px] tracking-widest group-hover:gap-8 transition-all mt-auto">
               <span>Emergency Line</span>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </div>
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-[4rem] shadow-[0_80px_160px_-40px_rgba(0,0,0,0.18)] overflow-hidden border-2 border-slate-100 max-w-4xl w-full mx-auto animate-slide-up-fade">
+        <div className="bg-white rounded-[2.5rem] md:rounded-[4rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.12)] md:shadow-[0_80px_160px_-40px_rgba(0,0,0,0.18)] overflow-hidden border-2 border-slate-100 max-w-4xl w-full mx-auto animate-slide-up-fade">
           {/* Active Agent Header */}
-          <div className={`${activeAgent ? AGENTS[activeAgent].theme : 'bg-slate-800'} p-16 text-white text-center relative transition-all duration-700 shadow-inner`}>
-            <div className="w-32 h-32 bg-white/10 backdrop-blur-3xl rounded-[3rem] mx-auto flex items-center justify-center mb-10 border-2 border-white/20 shadow-2xl">
-               <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className={`${activeAgent ? AGENTS[activeAgent].theme : 'bg-slate-800'} p-8 md:p-16 text-white text-center relative transition-all duration-700 shadow-inner`}>
+            <div className="w-20 h-20 md:w-32 md:h-32 bg-white/10 backdrop-blur-3xl rounded-3xl md:rounded-[3rem] mx-auto flex items-center justify-center mb-6 md:mb-10 border-2 border-white/20 shadow-2xl">
+               <svg className="w-10 h-10 md:w-14 md:h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {activeAgent === 'SARAH' ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   ) : (
@@ -374,71 +374,71 @@ const DrHVACVoiceAgent: React.FC = () => {
                   )}
                </svg>
             </div>
-            <h2 className="text-5xl font-[900] mb-3 uppercase tracking-tighter">Connected to {activeAgent && AGENTS[activeAgent].name}</h2>
-            <p className="text-white/60 text-[16px] font-[900] uppercase tracking-[0.6em]">{activeAgent && AGENTS[activeAgent].role}</p>
+            <h2 className="text-3xl md:text-5xl font-[900] mb-2 md:mb-3 uppercase tracking-tighter">Connected to {activeAgent && AGENTS[activeAgent].name}</h2>
+            <p className="text-white/60 text-[12px] md:text-[16px] font-[900] uppercase tracking-[0.4em] md:tracking-[0.6em]">{activeAgent && AGENTS[activeAgent].role}</p>
           </div>
 
-          <div className="p-16 space-y-12">
+          <div className="p-6 md:p-16 space-y-8 md:space-y-12">
             {/* Visual Feedback Area */}
-            <div className="w-full min-h-[100px] flex flex-col gap-6">
+            <div className="w-full min-h-[60px] md:min-h-[100px] flex flex-col gap-4 md:gap-6">
               {qualifiedRebate && (
-                <div className="dashed-card p-10 flex items-center justify-between animate-slide-up-fade bg-blue-50/40 border-2 border-blue-100/50">
-                   <div className="flex items-center gap-10">
-                     <div className="w-20 h-20 bg-[#f37021] rounded-3xl flex items-center justify-center text-white shadow-xl">
-                       <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div className="dashed-card p-6 md:p-10 flex flex-col sm:flex-row items-center justify-between animate-slide-up-fade bg-blue-50/40 border-2 border-blue-100/50 gap-6">
+                   <div className="flex items-center gap-6 md:gap-10">
+                     <div className="w-16 h-16 md:w-20 md:h-20 bg-[#f37021] rounded-2xl md:rounded-3xl flex items-center justify-center text-white shadow-xl">
+                       <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                      </div>
                      <div>
-                       <p className="text-[14px] text-black/40 font-[900] uppercase tracking-widest mb-1">Rebate Qualification</p>
-                       <p className="text-5xl font-[900] text-black tracking-tighter">${qualifiedRebate.amount.toLocaleString()}</p>
+                       <p className="text-[11px] md:text-[14px] text-black/40 font-[900] uppercase tracking-widest mb-1">Rebate Qualification</p>
+                       <p className="text-3xl md:text-5xl font-[900] text-black tracking-tighter">${qualifiedRebate.amount.toLocaleString()}</p>
                      </div>
                    </div>
-                   <span className="px-6 py-2.5 bg-blue-100 text-[#004a99] text-[14px] font-[900] rounded-2xl uppercase tracking-widest">{qualifiedRebate.sourceType}</span>
+                   <span className="px-5 py-2 md:px-6 md:py-2.5 bg-blue-100 text-[#004a99] text-[12px] md:text-[14px] font-[900] rounded-xl md:rounded-2xl uppercase tracking-widest w-full sm:w-auto text-center">{qualifiedRebate.sourceType}</span>
                 </div>
               )}
 
               {emergencyBooking && (
-                <div className="dashed-card p-10 flex items-center justify-between animate-slide-up-fade bg-red-50 border-2 border-red-100">
-                   <div className="flex items-center gap-10">
-                     <div className="w-20 h-20 bg-red-600 rounded-3xl flex items-center justify-center text-white shadow-xl">
-                       <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                <div className="dashed-card p-6 md:p-10 flex flex-col sm:flex-row items-center justify-between animate-slide-up-fade bg-red-50 border-2 border-red-100 gap-6">
+                   <div className="flex items-center gap-6 md:gap-10">
+                     <div className="w-16 h-16 md:w-20 md:h-20 bg-red-600 rounded-2xl md:rounded-3xl flex items-center justify-center text-white shadow-xl">
+                       <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                      </div>
                      <div>
-                       <p className="text-[14px] text-red-800/50 font-[900] uppercase tracking-widest mb-1">Priority Dispatch</p>
-                       <p className="text-3xl font-[900] text-black tracking-tight">{emergencyBooking.issue}</p>
+                       <p className="text-[11px] md:text-[14px] text-red-800/50 font-[900] uppercase tracking-widest mb-1">Priority Dispatch</p>
+                       <p className="text-xl md:text-3xl font-[900] text-black tracking-tight">{emergencyBooking.issue}</p>
                      </div>
                    </div>
-                   <p className="text-[16px] font-[900] text-white bg-red-700 px-6 py-2.5 rounded-2xl uppercase tracking-widest">{emergencyBooking.guaranteeTime}</p>
+                   <p className="text-[14px] md:text-[16px] font-[900] text-white bg-red-700 px-5 py-2 md:px-6 md:py-2.5 rounded-xl md:rounded-2xl uppercase tracking-widest w-full sm:w-auto text-center">{emergencyBooking.guaranteeTime}</p>
                 </div>
               )}
             </div>
 
             {/* LIVE TRANSCRIPT WINDOW */}
-            <div className="bg-[#fcfdfe] rounded-[3.5rem] border-2 border-slate-100 p-10 shadow-[inset_0_4px_12px_rgba(0,0,0,0.02)]">
-               <div className="flex items-center justify-between mb-8 px-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
-                    <p className="text-[12px] font-[900] text-slate-400 uppercase tracking-[0.2em]">Real-Time Session Logs</p>
+            <div className="bg-[#fcfdfe] rounded-[2rem] md:rounded-[3.5rem] border-2 border-slate-100 p-6 md:p-10 shadow-[inset_0_4px_12px_rgba(0,0,0,0.02)]">
+               <div className="flex items-center justify-between mb-6 md:mb-8 px-2 md:px-4">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                    <p className="text-[10px] md:text-[12px] font-[900] text-slate-400 uppercase tracking-[0.2em]">Real-Time Session Logs</p>
                   </div>
                </div>
                
-               <div className="h-[320px] overflow-y-auto px-4 space-y-8 scrollbar-hide flex flex-col">
+               <div className="h-[240px] md:h-[320px] overflow-y-auto px-1 md:px-4 space-y-6 md:space-y-8 scrollbar-hide flex flex-col">
                   {transcript.map((msg, i) => (
                     msg.sender === 'system' ? (
-                      <div key={i} className="flex justify-center py-6 animate-slide-up-fade">
-                         <div className="px-10 py-3 bg-[#1a2333] text-white rounded-full border border-white/10 text-[11px] font-[900] uppercase tracking-[0.25em] shadow-2xl flex items-center gap-4">
-                            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                      <div key={i} className="flex justify-center py-4 md:py-6 animate-slide-up-fade">
+                         <div className="px-6 md:px-10 py-2 md:py-3 bg-[#1a2333] text-white rounded-full border border-white/10 text-[9px] md:text-[11px] font-[900] uppercase tracking-[0.2em] md:tracking-[0.25em] shadow-2xl flex items-center gap-3 md:gap-4 text-center">
+                            <span className="w-1 h-1 md:w-1.5 md:h-1.5 bg-emerald-400 rounded-full flex-shrink-0"></span>
                             {msg.text}
                          </div>
                       </div>
                     ) : (
                       <div key={i} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start animate-slide-up-fade'}`}>
-                        <div className="flex items-center gap-3 mb-2 px-2">
-                           <span className={`text-[10px] font-[900] uppercase tracking-widest ${msg.sender === 'user' ? 'text-slate-400' : 'text-[#004a99]'}`}>
+                        <div className="flex items-center gap-2 md:gap-3 mb-1.5 md:mb-2 px-1 md:px-2">
+                           <span className={`text-[9px] md:text-[10px] font-[900] uppercase tracking-widest ${msg.sender === 'user' ? 'text-slate-400' : 'text-[#004a99]'}`}>
                               {msg.sender === 'user' ? 'Client' : (activeAgent && AGENTS[activeAgent].name)}
                            </span>
-                           <span className="text-[9px] font-bold text-slate-300">{msg.timestamp}</span>
+                           <span className="text-[8px] md:text-[9px] font-bold text-slate-300">{msg.timestamp}</span>
                         </div>
-                        <div className={`max-w-[80%] px-8 py-5 rounded-[2rem] font-bold text-[16px] leading-relaxed shadow-sm ${msg.sender === 'user' ? 'bg-white border-2 border-slate-100 text-slate-700 rounded-tr-none' : 'bg-[#1a2333] text-white rounded-tl-none shadow-xl'}`}>
+                        <div className={`max-w-[90%] md:max-w-[80%] px-5 md:px-8 py-3.5 md:py-5 rounded-[1.5rem] md:rounded-[2rem] font-bold text-[14px] md:text-[16px] leading-relaxed shadow-sm ${msg.sender === 'user' ? 'bg-white border-2 border-slate-100 text-slate-700 rounded-tr-none' : 'bg-[#1a2333] text-white rounded-tl-none shadow-xl'}`}>
                             {msg.text}
                         </div>
                       </div>
@@ -450,9 +450,9 @@ const DrHVACVoiceAgent: React.FC = () => {
 
             <Visualizer isActive={isConnected} audioContext={inputAudioContextRef.current} sourceNode={inputSourceRef.current} />
 
-            <div className="flex flex-col items-center gap-10">
-              <button onClick={handleDisconnect} className="flex items-center justify-center w-32 h-32 bg-black text-white rounded-full shadow-2xl transition-all hover:bg-red-700 hover:scale-110 active:scale-95 group">
-                 <svg className="w-14 h-14 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M6 18L18 6M6 6l12 12" /></svg>
+            <div className="flex flex-col items-center gap-6 md:gap-10">
+              <button onClick={handleDisconnect} className="flex items-center justify-center w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full shadow-2xl transition-all hover:bg-red-700 hover:scale-110 active:scale-95 group touch-manipulation">
+                 <svg className="w-10 h-10 md:w-14 md:h-14 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
           </div>
