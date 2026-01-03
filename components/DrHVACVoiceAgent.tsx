@@ -65,6 +65,11 @@ const AGENTS: Record<AgentType, AgentConfig> = {
 interface RebateInfo { amount: number; sourceType: string; }
 interface EmergencyInfo { issue: string; guaranteeTime: string; }
 
+interface TranscriptMessage {
+  sender: 'user' | 'agent';
+  text: string;
+}
+
 const DrHVACVoiceAgent: React.FC = () => {
   const [activeAgent, setActiveAgent] = useState<AgentType | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -72,6 +77,11 @@ const DrHVACVoiceAgent: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [qualifiedRebate, setQualifiedRebate] = useState<RebateInfo | null>(null);
   const [emergencyBooking, setEmergencyBooking] = useState<EmergencyInfo | null>(null);
+  
+  // Transcription state
+  const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
+  const [currentInputText, setCurrentInputText] = useState('');
+  const [currentOutputText, setCurrentOutputText] = useState('');
   
   const inputAudioContextRef = useRef<AudioContext | null>(null);
   const outputAudioContextRef = useRef<AudioContext | null>(null);
@@ -82,6 +92,13 @@ const DrHVACVoiceAgent: React.FC = () => {
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const sessionPromiseRef = useRef<Promise<any> | null>(null);
   const activeRef = useRef(false);
+  const transcriptEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (transcriptEndRef.current) {
+      transcriptEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [transcript, currentInputText, currentOutputText]);
 
   const initAudioContexts = () => {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -93,6 +110,9 @@ const DrHVACVoiceAgent: React.FC = () => {
     try {
       setIsError(false);
       setErrorMessage('');
+      setTranscript([]);
+      setCurrentInputText('');
+      setCurrentOutputText('');
 
       if (!window.isSecureContext) {
         throw new Error('Microphone access requires a secure connection (HTTPS).');
@@ -134,6 +154,8 @@ const DrHVACVoiceAgent: React.FC = () => {
           responseModalities: [Modality.AUDIO],
           systemInstruction: agent.instruction,
           tools: [{ functionDeclarations: [updateRebateDisplayDeclaration, confirmEmergencyBookingDeclaration] }],
+          inputAudioTranscription: {},
+          outputAudioTranscription: {},
           speechConfig: {
             voiceConfig: { prebuiltVoiceConfig: { voiceName: agent.voice } }
           }
@@ -181,6 +203,24 @@ const DrHVACVoiceAgent: React.FC = () => {
   };
 
   const handleServerMessage = async (message: LiveServerMessage) => {
+    // Handle Transcriptions
+    if (message.serverContent?.inputTranscription) {
+      setCurrentInputText(prev => prev + (message.serverContent?.inputTranscription?.text || ''));
+    } else if (message.serverContent?.outputTranscription) {
+      setCurrentOutputText(prev => prev + (message.serverContent?.outputTranscription?.text || ''));
+    }
+
+    if (message.serverContent?.turnComplete) {
+      setTranscript(prev => {
+        const newHistory = [...prev];
+        if (currentInputText) newHistory.push({ sender: 'user', text: currentInputText });
+        if (currentOutputText) newHistory.push({ sender: 'agent', text: currentOutputText });
+        return newHistory;
+      });
+      setCurrentInputText('');
+      setCurrentOutputText('');
+    }
+
     if (message.toolCall) {
       for (const fc of message.toolCall.functionCalls) {
         if (fc.name === 'updateRebateDisplay') {
@@ -290,7 +330,7 @@ const DrHVACVoiceAgent: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-[4rem] shadow-[0_80px_160px_-40px_rgba(0,0,0,0.18)] overflow-hidden border-2 border-slate-100 max-w-3xl w-full mx-auto animate-slide-up-fade">
+        <div className="bg-white rounded-[4rem] shadow-[0_80px_160px_-40px_rgba(0,0,0,0.18)] overflow-hidden border-2 border-slate-100 max-w-4xl w-full mx-auto animate-slide-up-fade">
           {/* Active Agent Header */}
           <div className={`${activeAgent ? AGENTS[activeAgent].theme : 'bg-slate-800'} p-16 text-white text-center relative`}>
             <div className="w-32 h-32 bg-white/10 backdrop-blur-3xl rounded-[3rem] mx-auto flex items-center justify-center mb-10 border-2 border-white/20 shadow-2xl">
@@ -308,7 +348,7 @@ const DrHVACVoiceAgent: React.FC = () => {
 
           <div className="p-16 space-y-12">
             {/* Visual Feedback Area */}
-            <div className="w-full min-h-[140px] flex flex-col gap-8">
+            <div className="w-full min-h-[100px] flex flex-col gap-6">
               {qualifiedRebate && activeAgent === 'SARAH' && (
                 <div className="dashed-card p-10 flex items-center justify-between animate-slide-up-fade bg-blue-50/40 border-2 border-blue-100/50">
                    <div className="flex items-center gap-10">
@@ -340,13 +380,66 @@ const DrHVACVoiceAgent: React.FC = () => {
               )}
             </div>
 
+            {/* LIVE TRANSCRIPT WINDOW (Visual Proof of Work) */}
+            <div className="bg-slate-50/80 backdrop-blur-md rounded-[3rem] border-2 border-slate-100 p-8 shadow-inner">
+               <div className="flex items-center justify-between mb-6 px-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                    <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Live Transcript Window</p>
+                  </div>
+                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Data Capture Active</span>
+               </div>
+               
+               <div className="h-[250px] overflow-y-auto px-4 space-y-6 scrollbar-hide flex flex-col">
+                  {transcript.map((msg, i) => (
+                    <div key={i} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start animate-slide-up-fade'}`}>
+                       <span className={`text-[10px] font-black uppercase tracking-widest mb-2 ${msg.sender === 'user' ? 'text-slate-400' : 'text-blue-500'}`}>
+                         {msg.sender === 'user' ? 'You' : (activeAgent && AGENTS[activeAgent].name)}
+                       </span>
+                       <div className={`max-w-[85%] px-6 py-4 rounded-3xl font-semibold text-[15px] leading-relaxed ${msg.sender === 'user' ? 'bg-white border-2 border-slate-100 text-slate-700 rounded-tr-none' : 'bg-[#1a2333] text-white rounded-tl-none shadow-xl shadow-slate-900/10'}`}>
+                          {msg.text}
+                       </div>
+                    </div>
+                  ))}
+                  
+                  {/* Streaming Input */}
+                  {currentInputText && (
+                    <div className="flex flex-col items-end animate-pulse">
+                       <span className="text-[10px] font-black uppercase tracking-widest mb-2 text-slate-300">Speaking...</span>
+                       <div className="max-w-[85%] px-6 py-4 bg-white/50 border-2 border-slate-100 border-dashed rounded-3xl rounded-tr-none font-semibold text-[15px] text-slate-400">
+                          {currentInputText}
+                       </div>
+                    </div>
+                  )}
+
+                  {/* Streaming Output */}
+                  {currentOutputText && (
+                    <div className="flex flex-col items-start animate-pulse">
+                       <span className="text-[10px] font-black uppercase tracking-widest mb-2 text-blue-300">Responding...</span>
+                       <div className="max-w-[85%] px-6 py-4 bg-blue-50 border-2 border-blue-100 border-dashed rounded-3xl rounded-tl-none font-semibold text-[15px] text-blue-600">
+                          {currentOutputText}
+                       </div>
+                    </div>
+                  )}
+
+                  {!transcript.length && !currentInputText && !currentOutputText && (
+                    <div className="h-full flex items-center justify-center">
+                       <p className="text-slate-300 font-bold text-sm tracking-widest uppercase text-center max-w-[200px] leading-relaxed opacity-60">
+                         Start speaking to see real-time data capture
+                       </p>
+                    </div>
+                  )}
+                  <div ref={transcriptEndRef} />
+               </div>
+            </div>
+
             <Visualizer 
               isActive={isConnected} 
               audioContext={inputAudioContextRef.current}
               sourceNode={inputSourceRef.current}
             />
 
-            <div className="flex flex-col items-center gap-12">
+            <div className="flex flex-col items-center gap-10">
               <div className="flex items-center gap-5">
                  <span className={`w-5 h-5 rounded-full animate-pulse ${activeAgent === 'MIKE' ? 'bg-red-500 shadow-[0_0_25px_rgba(239,68,68,0.7)]' : 'bg-[#f37021] shadow-[0_0_25px_rgba(243,112,33,0.7)]'}`}></span>
                  <p className={`${activeAgent === 'MIKE' ? 'text-red-600' : 'text-[#f37021]'} text-[16px] font-black uppercase tracking-[0.6em]`}>Conversation Live</p>
