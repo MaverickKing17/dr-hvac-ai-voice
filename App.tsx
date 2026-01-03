@@ -78,48 +78,16 @@ const App: React.FC = () => {
           <DrHVACVoiceAgent />
         </div>
 
-        {/* TRUST BADGES */}
+        {/* TRUST BADGE SECTION */}
         <div className="w-full max-w-6xl mt-24 mb-24">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          <div className="flex justify-center items-center">
              
-             {/* HomeStars Badge */}
-             <a 
-               href="https://homestars.com/companies/2785535-dr-hvac-heating-air-conditioning-duct-cleaning-plumbing-service" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="flex flex-col items-center group text-center p-12 bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl transition-all hover:shadow-orange-500/20 hover:-translate-y-2 hover:border-[#f37021]/40"
-             >
-                <div className="mb-6">
-                  <span className="text-5xl font-black text-black tracking-tighter block group-hover:text-blue-800 transition-colors">HomeStars</span>
-                </div>
-                <div className="px-8 py-3 bg-green-50 rounded-2xl border-2 border-green-500/30 mb-4 shadow-sm">
-                  <span className="text-[14px] font-black uppercase tracking-[0.2em] text-green-900">BEST OF 2024 WINNER</span>
-                </div>
-                <p className="mt-6 text-[13px] font-black text-black/60 uppercase tracking-widest">VERIFIED SERVICE PROFILE</p>
-             </a>
-
-             {/* BBB Badge */}
-             <a 
-               href="https://www.bbb.org/ca/on/brampton/profile/heating-and-air-conditioning/dr-hvac-0107-1205391" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="flex flex-col items-center group text-center p-12 bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl transition-all hover:shadow-orange-500/20 hover:-translate-y-2 hover:border-[#004a99]/40"
-             >
-                <div className="mb-6">
-                  <span className="text-6xl font-black text-[#004a99] tracking-tighter block">BBB<span className="text-[#f37021]">.</span></span>
-                </div>
-                <div className="px-8 py-3 bg-blue-50 rounded-2xl border-2 border-blue-500/30 mb-4 shadow-sm">
-                  <span className="text-[14px] font-black uppercase tracking-[0.2em] text-[#004a99]">ACCREDITED A+ RATING</span>
-                </div>
-                <p className="mt-6 text-[13px] font-black text-black/60 uppercase tracking-widest">IDENTITY VERIFIED MEMBER</p>
-             </a>
-
-             {/* Guarantee Badge */}
+             {/* Only Guarantee Badge Kept for Verified Trust */}
              <a 
                href="https://www.drhvac.ca/guarantee/" 
                target="_blank" 
                rel="noopener noreferrer"
-               className="flex flex-col items-center group text-center p-12 bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl transition-all hover:shadow-orange-500/20 hover:-translate-y-2 hover:border-orange-400"
+               className="flex flex-col items-center group text-center p-12 bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl transition-all hover:shadow-orange-500/20 hover:-translate-y-2 hover:border-orange-400 w-full max-w-sm"
              >
                 <div className="mb-6">
                   <span className="text-6xl font-black text-black tracking-tighter block group-hover:text-[#f37021] transition-colors">100%</span>
@@ -131,7 +99,7 @@ const App: React.FC = () => {
              </a>
 
           </div>
-          <p className="text-center mt-12 text-[13px] font-black text-black/40 uppercase tracking-[0.6em] animate-pulse">CLICK ANY BADGE TO VERIFY OFFICIAL CREDENTIALS</p>
+          <p className="text-center mt-12 text-[13px] font-black text-black/40 uppercase tracking-[0.6em] animate-pulse">DR. HVAC OFFICIAL SERVICE GUARANTEE</p>
         </div>
 
         <div id="faq-section" className="w-full">
