@@ -1,8 +1,22 @@
+
 import React from 'react';
 import DrHVACVoiceAgent from './components/DrHVACVoiceAgent';
 import FAQSection from './components/FAQSection';
 
 const App: React.FC = () => {
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // If scrolling to the agent, give it a quick "pulse" to show it's ready
+      if (id === 'sarah-agent') {
+        element.classList.add('ring-4', 'ring-orange-500/20');
+        setTimeout(() => element.classList.remove('ring-4', 'ring-orange-500/20'), 1000);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center">
       
@@ -25,18 +39,42 @@ const App: React.FC = () => {
       <div className="w-full max-w-6xl px-4 py-8 flex flex-col items-center">
         {/* Logo Branding */}
         <div className="w-full flex justify-between items-center mb-16">
-           <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-[#f37021] rounded-lg flex items-center justify-center text-white font-black text-lg">Dr</div>
+           <div 
+             className="flex items-center gap-2 cursor-pointer" 
+             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+           >
+              <div className="w-10 h-10 bg-[#f37021] rounded-lg flex items-center justify-center text-white font-black text-lg shadow-lg shadow-orange-500/10">Dr</div>
               <div className="leading-tight">
                 <p className="text-xl font-black text-[#004a99] tracking-tighter uppercase">HVAC & PLUMBING</p>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Since 1985</p>
               </div>
            </div>
-           <nav className="hidden md:flex gap-8 text-[11px] font-black uppercase tracking-widest text-slate-500">
-             <a href="#" className="hover:text-[#f37021]">Heating</a>
-             <a href="#" className="hover:text-[#f37021]">Cooling</a>
-             <a href="#" className="hover:text-[#f37021]">Rebates</a>
-             <button className="bg-[#f37021] text-white px-5 py-2.5 rounded-lg shadow-lg shadow-orange-500/20 transform hover:-translate-y-0.5 transition-all">Get Quote</button>
+           
+           <nav className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-widest text-[#004a99]">
+             <button 
+               onClick={() => scrollToSection('sarah-agent')} 
+               className="hover:text-[#f37021] transition-colors"
+             >
+               Heating
+             </button>
+             <button 
+               onClick={() => scrollToSection('sarah-agent')} 
+               className="hover:text-[#f37021] transition-colors"
+             >
+               Cooling
+             </button>
+             <button 
+               onClick={() => scrollToSection('faq-section')} 
+               className="hover:text-[#f37021] transition-colors"
+             >
+               Rebates
+             </button>
+             <button 
+               onClick={() => scrollToSection('sarah-agent')}
+               className="bg-[#f37021] text-white px-6 py-3 rounded-xl shadow-lg shadow-orange-500/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all font-black"
+             >
+               Get Quote
+             </button>
            </nav>
         </div>
 
@@ -51,7 +89,10 @@ const App: React.FC = () => {
            </p>
         </div>
 
-        <DrHVACVoiceAgent />
+        {/* Added ID for navigation target */}
+        <div id="sarah-agent" className="w-full transition-all duration-500 rounded-[3rem]">
+          <DrHVACVoiceAgent />
+        </div>
 
         {/* Trust Logos - Matching Website */}
         <div className="w-full max-w-xl mt-16 flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
@@ -69,7 +110,9 @@ const App: React.FC = () => {
            </div>
         </div>
 
-        <FAQSection />
+        <div id="faq-section" className="w-full">
+          <FAQSection />
+        </div>
 
         <div className="py-24"></div>
       </div>

@@ -10,22 +10,24 @@ const Visualizer: React.FC<VisualizerProps> = ({ isActive, audioContext, sourceN
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>();
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const dataArrayRef = useRef<Uint8Array | null>(null);
+  const freqDataRef = useRef<Uint8Array | null>(null);
+  const timeDataRef = useRef<Uint8Array | null>(null);
   const currentHeightsRef = useRef<Float32Array | null>(null);
 
   useEffect(() => {
     if (!isActive || !audioContext || !sourceNode || !canvasRef.current) return;
 
     const analyser = audioContext.createAnalyser();
-    // Use a higher smoothing constant for less jittery raw data
-    analyser.fftSize = 64; 
-    analyser.smoothingTimeConstant = 0.6;
+    // Slightly larger FFT for smoother waveform and bars
+    analyser.fftSize = 128; 
+    analyser.smoothingTimeConstant = 0.75;
     
     sourceNode.connect(analyser);
     analyserRef.current = analyser;
 
     const bufferLength = analyser.frequencyBinCount;
-    dataArrayRef.current = new Uint8Array(bufferLength);
+    freqDataRef.current = new Uint8Array(bufferLength);
+    timeDataRef.current = new Uint8Array(bufferLength);
     currentHeightsRef.current = new Float32Array(bufferLength).fill(0);
 
     const canvas = canvasRef.current;
@@ -36,55 +38,72 @@ const Visualizer: React.FC<VisualizerProps> = ({ isActive, audioContext, sourceN
     const draw = () => {
       requestRef.current = requestAnimationFrame(draw);
 
-      if (!analyserRef.current || !dataArrayRef.current || !currentHeightsRef.current) return;
+      if (!analyserRef.current || !freqDataRef.current || !timeDataRef.current || !currentHeightsRef.current) return;
 
-      analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+      const analyser = analyserRef.current;
+      analyser.getByteFrequencyData(freqDataRef.current);
+      analyser.getByteTimeDomainData(timeDataRef.current);
 
-      // Soft clear for transparency effect
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const barCount = bufferLength;
-      const totalAvailableWidth = canvas.width;
-      const gap = 8; 
-      const barWidth = (totalAvailableWidth / barCount) - gap;
+      // 1. Draw Waveform (Time Domain)
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#f37021'; // Dr. HVAC Orange
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = 'rgba(243, 112, 33, 0.4)';
+      ctx.beginPath();
+
+      const sliceWidth = canvas.width * 1.0 / timeDataRef.current.length;
+      let tx = 0;
+
+      for (let i = 0; i < timeDataRef.current.length; i++) {
+        const v = timeDataRef.current[i] / 128.0;
+        const ty = v * canvas.height / 2;
+
+        if (i === 0) {
+          ctx.moveTo(tx, ty);
+        } else {
+          ctx.lineTo(tx, ty);
+        }
+
+        tx += sliceWidth;
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0; // Reset for bars
+
+      // 2. Draw Frequency Bars
+      const barCount = freqDataRef.current.length;
+      const gap = 6; 
+      const barWidth = (canvas.width / barCount) - gap;
       
-      let x = gap / 2;
+      let bx = gap / 2;
 
       for (let i = 0; i < barCount; i++) {
-        const val = dataArrayRef.current[i];
-        // Scale height slightly smaller for elegance
-        const targetHeight = (val / 255) * canvas.height * 0.75;
+        const val = freqDataRef.current[i];
+        const targetHeight = (val / 255) * canvas.height * 0.8;
         
-        // Lower LERP factor (0.12 instead of 0.25) makes the "bounce" much more fluid and subtle
-        currentHeightsRef.current[i] += (targetHeight - currentHeightsRef.current[i]) * 0.12;
-        const drawHeight = Math.max(8, currentHeightsRef.current[i]);
+        currentHeightsRef.current[i] += (targetHeight - currentHeightsRef.current[i]) * 0.15;
+        const drawHeight = Math.max(4, currentHeightsRef.current[i]);
 
         const intensity = drawHeight / canvas.height;
-        // Shift colors more subtly (Blue to Cyan range)
-        const hue = 215 + (intensity * 30);
-        const lightness = 60 + (intensity * 10);
-
+        const hue = 210 + (intensity * 20); // Blue range
+        
         const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - drawHeight);
-        gradient.addColorStop(0, '#2563eb'); 
-        gradient.addColorStop(1, `hsl(${hue}, 80%, ${lightness}%)`);
+        gradient.addColorStop(0, 'rgba(0, 74, 153, 0.8)'); // Dr. HVAC Blue
+        gradient.addColorStop(1, `hsla(${hue}, 80%, 60%, 0.9)`);
 
         ctx.fillStyle = gradient;
         
-        // Adding a subtle shadow to each bar for depth
-        ctx.shadowColor = 'rgba(37, 99, 235, 0.1)';
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetY = 2;
-
-        ctx.beginPath();
+        // Rounded bars if supported
         if (ctx.roundRect) {
-            ctx.roundRect(x, canvas.height - drawHeight, barWidth, drawHeight, [8, 8, 8, 8]);
+            ctx.beginPath();
+            ctx.roundRect(bx, canvas.height - drawHeight, barWidth, drawHeight, [4, 4, 4, 4]);
+            ctx.fill();
         } else {
-            ctx.rect(x, canvas.height - drawHeight, barWidth, drawHeight);
+            ctx.fillRect(bx, canvas.height - drawHeight, barWidth, drawHeight);
         }
-        ctx.fill();
-        ctx.shadowBlur = 0; // Reset shadow for next bars
 
-        x += barWidth + gap;
+        bx += barWidth + gap;
       }
     };
 
