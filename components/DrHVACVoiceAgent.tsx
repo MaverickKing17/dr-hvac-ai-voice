@@ -36,19 +36,19 @@ const switchAgentDeclaration: FunctionDeclaration = {
   name: 'switchAgent',
   parameters: {
     type: Type.OBJECT,
-    description: 'Seamlessly transfer the user to another specialist based on the conversation context.',
+    description: 'Transfer the call to the other specialist with a specific context-driven reason.',
     properties: {
       targetAgent: { 
         type: Type.STRING, 
         enum: ['SARAH', 'MIKE'],
         description: 'The agent to hand over to.' 
       },
-      verbalHandover: { 
+      reason: { 
         type: Type.STRING, 
-        description: 'The exact phrase you will say to the user to explain the transfer.' 
+        description: 'The specific technical or service reason for the transfer (e.g. "Urgent furnace failure detected" or "Checking $7,500 rebate eligibility").' 
       }
     },
-    required: ['targetAgent', 'verbalHandover'],
+    required: ['targetAgent', 'reason'],
   },
 };
 
@@ -67,7 +67,7 @@ const AGENTS: Record<AgentType, AgentConfig> = {
   SARAH: {
     name: 'Sarah',
     role: 'Reception Specialist',
-    instruction: "Role: You are Sarah, Reception Specialist for Dr. HVAC. Tone: Warm, professional, helpful. Focus: General inquiries, furnace/AC quotes, and identifying $7,500 rebate eligibility. HANDOVER PROTOCOL: If you detect an emergency (e.g., 'no heat', 'leak', 'smell of gas'), you MUST say: 'I'm transferring you to Mike, our emergency dispatch lead, right now.' then call switchAgent with targetAgent='MIKE'.",
+    instruction: "Role: You are Sarah, Reception Specialist for Dr. HVAC. Tone: Warm, professional, helpful. Focus: General inquiries, furnace/AC quotes, and identifying $7,500 rebate eligibility. HANDOVER PROTOCOL: If you detect an emergency (e.g., 'no heat', 'leak', 'smell of gas', 'dangerous noise'), you MUST say: 'This sounds like an urgent technical failure. I am transferring you immediately to Mike, our Emergency Coordinator, so he can prioritize your 4-hour response guarantee.' then call switchAgent(targetAgent='MIKE', reason='Emergency Escalation: Technical System Failure').",
     voice: 'Kore',
     theme: 'bg-[#004a99]',
     accent: 'text-[#f37021]',
@@ -75,7 +75,7 @@ const AGENTS: Record<AgentType, AgentConfig> = {
   MIKE: {
     name: 'Mike',
     role: 'Emergency Dispatch',
-    instruction: "Role: You are Mike, Emergency Dispatcher for Dr. HVAC. Tone: Calm, decisive, urgent. Focus: Handling critical failures. HANDOVER PROTOCOL: If the user wants a standard quote or to check for energy rebates, you MUST say: 'Sarah handles all our rebate applications and new system quotes. Let me connect you with her now.' then call switchAgent with targetAgent='SARAH'.",
+    instruction: "Role: You are Mike, Emergency Dispatcher for Dr. HVAC. Tone: Calm, decisive, urgent. Focus: Handling critical failures. HANDOVER PROTOCOL: If the user is asking about general maintenance, new system quotes, or the $7,500 government rebate, you MUST say: 'I handle our emergency rapid-response dispatch. For energy rebates and new installation estimates, Sarah is our dedicated specialist. Let me connect you with her now to ensure you get the right expert.' then call switchAgent(targetAgent='SARAH', reason='Specialist Transfer: Rebate & Quote Optimization').",
     voice: 'Puck',
     theme: 'bg-[#1a2333]',
     accent: 'text-red-500',
@@ -127,7 +127,7 @@ const DrHVACVoiceAgent: React.FC = () => {
     if (!outputAudioContextRef.current) outputAudioContextRef.current = new AudioContextClass({ sampleRate: 24000 });
   };
 
-  const connectToGemini = async (agentKey: AgentType, isHandover: boolean = false) => {
+  const connectToGemini = async (agentKey: AgentType, isHandover: boolean = false, handoverReason?: string) => {
     try {
       setIsError(false);
       setErrorMessage('');
@@ -161,7 +161,7 @@ const DrHVACVoiceAgent: React.FC = () => {
             startAudioInput(stream);
             setTranscript(prev => [...prev, { 
               sender: 'system', 
-              text: isHandover ? `LINE TRANSFERRED TO ${agent.name.toUpperCase()}` : `CONNECTION SECURED WITH ${agent.name.toUpperCase()}`,
+              text: isHandover ? `PROTOCOL: ${handoverReason?.toUpperCase() || 'HANDOVER COMPLETE'}` : `SECURE LINE ESTABLISHED: ${agent.name.toUpperCase()}`,
               timestamp: new Date().toLocaleTimeString()
             }]);
           },
@@ -199,10 +199,10 @@ const DrHVACVoiceAgent: React.FC = () => {
     }
   };
 
-  const handleHandoverAction = async (targetAgent: AgentType, verbalHandover: string) => {
+  const handleHandoverAction = async (targetAgent: AgentType, reason: string) => {
     setTranscript(prev => [...prev, { 
       sender: 'system', 
-      text: `HANDOVER PROTOCOL INITIATED: TRANSFERRING TO ${targetAgent}`,
+      text: `HANDOVER LOG: ${reason}`,
       timestamp: new Date().toLocaleTimeString() 
     }]);
 
@@ -214,8 +214,8 @@ const DrHVACVoiceAgent: React.FC = () => {
     nextStartTimeRef.current = 0;
 
     setTimeout(() => {
-      connectToGemini(targetAgent, true);
-    }, 1000);
+      connectToGemini(targetAgent, true, reason);
+    }, 1200);
   };
 
   const resetConnection = () => {
@@ -262,8 +262,8 @@ const DrHVACVoiceAgent: React.FC = () => {
     if (message.toolCall) {
       for (const fc of message.toolCall.functionCalls) {
         if (fc.name === 'switchAgent') {
-          const { targetAgent, verbalHandover } = fc.args as { targetAgent: AgentType, verbalHandover: string };
-          handleHandoverAction(targetAgent, verbalHandover);
+          const { targetAgent, reason } = fc.args as { targetAgent: AgentType, reason: string };
+          handleHandoverAction(targetAgent, reason);
           sessionPromiseRef.current?.then(s => s.sendToolResponse({ functionResponses: { id: fc.id, name: fc.name, response: { result: "Transfer Protocol Initiated." } } }));
         } else if (fc.name === 'updateRebateDisplay') {
           setQualifiedRebate(fc.args as any);
@@ -312,7 +312,7 @@ const DrHVACVoiceAgent: React.FC = () => {
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col gap-12">
       
-      {/* STATUS BAR - BOLDER & ENHANCED PROFESSIONALISM */}
+      {/* STATUS BAR - EXECUTIVE PROFESSIONALISM */}
       <div className="flex flex-row items-center justify-between gap-4 px-3 py-3 bg-white border border-slate-100/80 rounded-full shadow-[0_12px_40px_rgba(0,0,0,0.04)] animate-slide-up-fade">
          <div className="flex items-center gap-5">
            <div className="flex items-center gap-3 px-6 py-3 bg-[#f0f7ff] rounded-full border border-[#d2e4ff]">
@@ -332,7 +332,7 @@ const DrHVACVoiceAgent: React.FC = () => {
       </div>
 
       {!isConnected || isHandingOver ? (
-        <div className={`grid md:grid-cols-2 gap-8 ${isHandingOver ? 'opacity-30 blur-md pointer-events-none grayscale' : ''} transition-all duration-700`}>
+        <div className={`grid md:grid-cols-2 gap-8 ${isHandingOver ? 'opacity-30 blur-md pointer-events-none grayscale scale-[0.98]' : ''} transition-all duration-700`}>
           {/* Sarah Selector */}
           <button onClick={() => connectToGemini('SARAH')} className="group bg-white rounded-[3.5rem] border-2 border-slate-100 p-12 text-left transition-all hover:border-[#004a99] hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full">
             <div className="w-24 h-24 bg-[#004a99] rounded-[2rem] flex items-center justify-center text-white mb-10 shadow-xl group-hover:scale-110 transition-transform">
@@ -412,15 +412,12 @@ const DrHVACVoiceAgent: React.FC = () => {
               )}
             </div>
 
-            {/* LIVE TRANSCRIPT WINDOW - HIGH CONTRAST & DYNAMIC */}
+            {/* LIVE TRANSCRIPT WINDOW */}
             <div className="bg-[#fcfdfe] rounded-[3.5rem] border-2 border-slate-100 p-10 shadow-[inset_0_4px_12px_rgba(0,0,0,0.02)]">
                <div className="flex items-center justify-between mb-8 px-4">
                   <div className="flex items-center gap-4">
                     <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
                     <p className="text-[12px] font-[900] text-slate-400 uppercase tracking-[0.2em]">Real-Time Session Logs</p>
-                  </div>
-                  <div className="px-4 py-1.5 bg-slate-100 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Secure Channel 082
                   </div>
                </div>
                
@@ -441,40 +438,12 @@ const DrHVACVoiceAgent: React.FC = () => {
                            </span>
                            <span className="text-[9px] font-bold text-slate-300">{msg.timestamp}</span>
                         </div>
-                        <div className={`max-w-[80%] px-8 py-5 rounded-[2rem] font-bold text-[16px] leading-relaxed shadow-sm ${msg.sender === 'user' ? 'bg-white border-2 border-slate-100 text-slate-700 rounded-tr-none' : 'bg-[#1a2333] text-white rounded-tl-none shadow-xl shadow-slate-900/10'}`}>
+                        <div className={`max-w-[80%] px-8 py-5 rounded-[2rem] font-bold text-[16px] leading-relaxed shadow-sm ${msg.sender === 'user' ? 'bg-white border-2 border-slate-100 text-slate-700 rounded-tr-none' : 'bg-[#1a2333] text-white rounded-tl-none shadow-xl'}`}>
                             {msg.text}
                         </div>
                       </div>
                     )
                   ))}
-                  
-                  {/* STREAMING CHUNKS */}
-                  {currentInputText && (
-                    <div className="flex flex-col items-end animate-pulse">
-                       <span className="text-[10px] font-black uppercase tracking-widest mb-2 text-slate-300">Processing Audio...</span>
-                       <div className="max-w-[80%] px-8 py-5 bg-white border-2 border-slate-100 border-dashed rounded-[2rem] rounded-tr-none font-bold text-[16px] text-slate-400">
-                          {currentInputText}
-                       </div>
-                    </div>
-                  )}
-
-                  {currentOutputText && (
-                    <div className="flex flex-col items-start animate-pulse">
-                       <span className="text-[10px] font-black uppercase tracking-widest mb-2 text-blue-300">Generating Voice...</span>
-                       <div className="max-w-[80%] px-8 py-5 bg-blue-50 border-2 border-blue-100 border-dashed rounded-[2rem] rounded-tl-none font-bold text-[16px] text-[#004a99]">
-                          {currentOutputText}
-                       </div>
-                    </div>
-                  )}
-
-                  {!transcript.length && !currentInputText && !currentOutputText && (
-                    <div className="h-full flex flex-col items-center justify-center gap-6 opacity-30">
-                       <div className="w-16 h-16 border-4 border-slate-200 border-t-[#004a99] rounded-full animate-spin"></div>
-                       <p className="text-slate-400 font-black text-xs tracking-[0.4em] uppercase text-center max-w-[240px] leading-relaxed">
-                         Awaiting Secure Voice Input
-                       </p>
-                    </div>
-                  )}
                   <div ref={transcriptEndRef} />
                </div>
             </div>
@@ -482,18 +451,10 @@ const DrHVACVoiceAgent: React.FC = () => {
             <Visualizer isActive={isConnected} audioContext={inputAudioContextRef.current} sourceNode={inputSourceRef.current} />
 
             <div className="flex flex-col items-center gap-10">
-              <button onClick={handleDisconnect} className="flex items-center justify-center w-32 h-32 bg-black text-white rounded-full shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] transition-all hover:bg-red-700 hover:scale-110 active:scale-95 group">
+              <button onClick={handleDisconnect} className="flex items-center justify-center w-32 h-32 bg-black text-white rounded-full shadow-2xl transition-all hover:bg-red-700 hover:scale-110 active:scale-95 group">
                  <svg className="w-14 h-14 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-          </div>
-          
-          <div className="bg-slate-50 px-16 py-12 border-t border-slate-100 flex items-center justify-between">
-             <div className="flex items-center gap-4">
-               <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
-               <span className="text-[13px] text-slate-400 font-black uppercase tracking-[0.6em]">Secure AI Line 082</span>
-             </div>
-             <span className="text-[13px] text-slate-400 font-black uppercase tracking-[0.4em]">Official Dr. HVAC Support</span>
           </div>
         </div>
       )}
