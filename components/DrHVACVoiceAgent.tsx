@@ -276,11 +276,11 @@ const DrHVACVoiceAgent: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] overflow-hidden border border-slate-100 max-w-lg w-full mx-auto mt-8 flex flex-col transition-all duration-300">
+    <div className="bg-white rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.12)] overflow-hidden border border-slate-100 max-w-lg w-full mx-auto mt-8 flex flex-col transition-all duration-300">
       {/* Premium Header */}
       <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-700 p-8 text-white text-center relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,1),transparent)]"></div>
-        <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl mx-auto flex items-center justify-center mb-5 shadow-inner border border-white/20 relative z-10">
+        <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl mx-auto flex items-center justify-center mb-5 shadow-inner border border-white/20 relative z-10 transition-transform hover:scale-105 duration-300">
            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
            </svg>
@@ -295,33 +295,33 @@ const DrHVACVoiceAgent: React.FC = () => {
         {/* Dynamic Context UI */}
         <div className="w-full space-y-3">
           {qualifiedRebate && (
-            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between shadow-sm animate-in slide-in-from-top duration-500">
+            <div className="bg-emerald-50 border border-emerald-100 rounded-3xl p-5 flex items-center justify-between shadow-[0_8px_20px_rgba(16,185,129,0.05)] animate-slide-up-fade">
                <div>
-                 <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest mb-0.5">Qualified Rebate</p>
-                 <p className="text-3xl font-black text-emerald-700 tracking-tight">${qualifiedRebate.amount.toLocaleString()}</p>
+                 <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest mb-1">Qualified Rebate</p>
+                 <p className="text-4xl font-black text-emerald-700 tracking-tighter leading-none">${qualifiedRebate.amount.toLocaleString()}</p>
                </div>
                <div className="text-right">
-                  <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-full uppercase">{qualifiedRebate.sourceType}</span>
+                  <span className="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-700 text-[10px] font-black rounded-full uppercase tracking-wider shadow-sm">{qualifiedRebate.sourceType}</span>
                </div>
             </div>
           )}
 
           {emergencyBooking && (
-            <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center justify-between shadow-sm animate-in slide-in-from-top duration-500">
+            <div className="bg-red-50 border border-red-100 rounded-3xl p-5 flex items-center justify-between shadow-[0_8px_20px_rgba(239,68,68,0.05)] animate-slide-up-fade">
                <div>
-                 <p className="text-[10px] text-red-600 font-black uppercase tracking-widest mb-0.5">Emergency Dispatch</p>
-                 <p className="text-lg font-black text-red-800 tracking-tight leading-tight">{emergencyBooking.issue}</p>
+                 <p className="text-[10px] text-red-600 font-black uppercase tracking-widest mb-1">Emergency Dispatch</p>
+                 <p className="text-xl font-black text-red-800 tracking-tight leading-tight">{emergencyBooking.issue}</p>
                </div>
                <div className="text-right">
                   <p className="text-[10px] font-black text-red-600 uppercase mb-1">Response</p>
-                  <p className="text-xs font-black text-white bg-red-600 px-3 py-1 rounded-lg shadow-sm">{emergencyBooking.guaranteeTime}</p>
+                  <p className="text-xs font-black text-white bg-red-600 px-4 py-1.5 rounded-xl shadow-lg shadow-red-500/30">{emergencyBooking.guaranteeTime}</p>
                </div>
             </div>
           )}
         </div>
 
         {/* Visualizer Area */}
-        <div className="w-full relative px-2">
+        <div className="w-full relative px-1">
           <Visualizer 
             isActive={isConnected} 
             audioContext={inputAudioContextRef.current}
@@ -332,26 +332,25 @@ const DrHVACVoiceAgent: React.FC = () => {
         {/* Status Messages */}
         <div className="text-center h-6 flex items-center justify-center">
            {isError ? (
-             <p className="text-red-500 text-xs font-bold uppercase tracking-wider">{errorMessage}</p>
+             <p className="text-red-500 text-[10px] font-black uppercase tracking-widest">{errorMessage}</p>
            ) : isConnected ? (
              <div className="flex items-center gap-2">
-               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-               <p className="text-emerald-600 text-xs font-black uppercase tracking-widest">Live: Sarah is listening</p>
+               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,1)]"></span>
+               <p className="text-emerald-600 text-[10px] font-black uppercase tracking-[0.2em]">Sarah is Listening</p>
              </div>
            ) : (
-             <p className="text-slate-400 text-xs font-medium">Click the button to start a conversation with Sarah.</p>
+             <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.15em]">Ready to assist you</p>
            )}
         </div>
 
         {/* Controls */}
-        <div className="w-full flex justify-center pt-2 pb-4">
+        <div className="w-full flex justify-center pt-2 pb-2">
           {!isConnected ? (
             <button
               onClick={connectToGemini}
-              className="relative group flex items-center justify-center w-24 h-24 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-[0_15px_30px_rgba(37,99,235,0.3)] transition-all transform hover:scale-105 active:scale-95 focus:outline-none"
+              className="relative group flex items-center justify-center w-24 h-24 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-[0_20px_40px_rgba(37,99,235,0.4)] transition-all transform hover:scale-105 active:scale-95 focus:outline-none"
             >
-               {/* Pulsing ring when inactive */}
-               <div className="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-20 group-hover:hidden"></div>
+               <div className="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-10 group-hover:hidden"></div>
                <svg className="w-10 h-10 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                </svg>
@@ -361,7 +360,7 @@ const DrHVACVoiceAgent: React.FC = () => {
               onClick={disconnect}
               className="relative group flex items-center justify-center w-24 h-24 bg-slate-900 hover:bg-red-600 text-white rounded-full shadow-2xl transition-all transform hover:scale-105 active:scale-95 focus:outline-none"
             >
-               <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <svg className="w-10 h-10 transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                </svg>
             </button>
@@ -369,13 +368,13 @@ const DrHVACVoiceAgent: React.FC = () => {
         </div>
       </div>
       
-      {/* Minimal Footer */}
-      <div className="bg-slate-50/50 px-8 py-5 border-t border-slate-100 flex items-center justify-between">
-         <div className="flex items-center gap-1.5">
-           <div className="w-2 h-2 bg-blue-600 rounded-sm rotate-45"></div>
-           <span className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Dr. HVAC Reception</span>
+      {/* Footer */}
+      <div className="bg-slate-50/30 px-10 py-6 border-t border-slate-100 flex items-center justify-between">
+         <div className="flex items-center gap-2">
+           <div className="w-2.5 h-2.5 bg-blue-600 rounded-sm rotate-12 shadow-sm"></div>
+           <span className="text-[10px] text-slate-500 font-black uppercase tracking-[0.25em]">Sarah AI v1.2</span>
          </div>
-         <span className="text-[10px] text-slate-400 font-medium">Toronto, ON</span>
+         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Secure Channel</span>
       </div>
     </div>
   );
