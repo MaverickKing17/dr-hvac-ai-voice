@@ -332,32 +332,40 @@ const DrHVACVoiceAgent: React.FC = () => {
       </div>
 
       {!isConnected || isHandingOver ? (
-        <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 ${isHandingOver ? 'opacity-30 blur-md pointer-events-none grayscale scale-[0.98]' : ''} transition-all duration-700`}>
-          {/* Sarah Selector */}
-          <button onClick={() => connectToGemini('SARAH')} className="group bg-white rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-slate-100 p-8 md:p-12 text-left transition-all hover:border-[#004a99] hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full active:scale-95 touch-manipulation">
-            <div className="w-16 h-16 md:w-24 md:h-24 bg-[#004a99] rounded-2xl md:rounded-[2rem] flex items-center justify-center text-white mb-6 md:mb-10 shadow-xl group-hover:scale-110 transition-transform">
-              <svg className="w-8 h-8 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 ${isHandingOver ? 'opacity-30 blur-md pointer-events-none grayscale scale-[0.98]' : ''} transition-all duration-700`}>
+          {/* Sarah Selector - Optimized Thumb Target */}
+          <button 
+            onClick={() => connectToGemini('SARAH')} 
+            className="group bg-white rounded-[3rem] border-2 border-slate-100 p-10 md:p-12 text-left transition-all hover:border-[#004a99] hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full active:scale-95 touch-manipulation relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#004a99]/5 rounded-bl-[100%] transition-all group-hover:scale-110"></div>
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-[#004a99] rounded-[2rem] flex items-center justify-center text-white mb-8 md:mb-10 shadow-xl group-hover:scale-110 transition-transform relative z-10">
+              <svg className="w-10 h-10 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
             </div>
-            <h3 className="text-2xl md:text-3xl font-[900] text-slate-900 mb-2">Talk to Sarah</h3>
-            <p className="text-[#004a99] text-[11px] md:text-[13px] font-[900] uppercase tracking-[0.4em] mb-4 md:mb-8">Rebate Specialist</p>
-            <p className="text-slate-600 font-bold leading-relaxed mb-6 md:mb-12 text-lg md:text-xl flex-grow opacity-80">Expert in identifying $7,500 rebates and coordintating furnace quotes.</p>
-            <div className="flex items-center gap-4 md:gap-5 text-[#f37021] font-[900] uppercase text-[13px] md:text-[15px] tracking-widest group-hover:gap-8 transition-all mt-auto">
-              <span>Start Call</span>
-              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            <h3 className="text-3xl font-[900] text-slate-900 mb-2 relative z-10">Talk to Sarah</h3>
+            <p className="text-[#004a99] text-[12px] md:text-[13px] font-[900] uppercase tracking-[0.4em] mb-6 md:mb-8 relative z-10">Rebate Specialist</p>
+            <p className="text-slate-600 font-bold leading-relaxed mb-10 md:mb-12 text-xl flex-grow opacity-80 relative z-10">Expert in identifying $7,500 rebates and coordintating furnace quotes.</p>
+            <div className="flex items-center gap-5 text-[#f37021] font-[900] uppercase text-[15px] tracking-[0.2em] group-hover:gap-8 transition-all mt-auto relative z-10">
+              <span>START CALL</span>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </div>
           </button>
 
-          {/* Mike Selector */}
-          <button onClick={() => connectToGemini('MIKE')} className="group bg-white rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-slate-100 p-8 md:p-12 text-left transition-all hover:border-red-600 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full active:scale-95 touch-manipulation">
-            <div className="w-16 h-16 md:w-24 md:h-24 bg-[#1a2333] rounded-2xl md:rounded-[2rem] flex items-center justify-center text-white mb-6 md:mb-10 shadow-xl group-hover:scale-110 transition-transform">
-              <svg className="w-8 h-8 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          {/* Mike Selector - Optimized Thumb Target */}
+          <button 
+            onClick={() => connectToGemini('MIKE')} 
+            className="group bg-white rounded-[3rem] border-2 border-slate-100 p-10 md:p-12 text-left transition-all hover:border-red-600 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full active:scale-95 touch-manipulation relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-bl-[100%] transition-all group-hover:scale-110"></div>
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-[#1a2333] rounded-[2rem] flex items-center justify-center text-white mb-8 md:mb-10 shadow-xl group-hover:scale-110 transition-transform relative z-10">
+              <svg className="w-10 h-10 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </div>
-            <h3 className="text-2xl md:text-3xl font-[900] text-slate-900 mb-2">Talk to Mike</h3>
-            <p className="text-red-600 text-[11px] md:text-[13px] font-[900] uppercase tracking-[0.4em] mb-4 md:mb-8">Emergency Dispatch</p>
-            <p className="text-slate-600 font-bold leading-relaxed mb-6 md:mb-12 text-lg md:text-xl flex-grow opacity-80">Handling critical failures with our 4-hour response guarantee.</p>
-            <div className="flex items-center gap-4 md:gap-5 text-red-600 font-[900] uppercase text-[13px] md:text-[15px] tracking-widest group-hover:gap-8 transition-all mt-auto">
-              <span>Emergency Line</span>
-              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            <h3 className="text-3xl font-[900] text-slate-900 mb-2 relative z-10">Talk to Mike</h3>
+            <p className="text-red-600 text-[12px] md:text-[13px] font-[900] uppercase tracking-[0.4em] mb-6 md:mb-8 relative z-10">Emergency Dispatch</p>
+            <p className="text-slate-600 font-bold leading-relaxed mb-10 md:mb-12 text-xl flex-grow opacity-80 relative z-10">Handling critical failures with our 4-hour response guarantee.</p>
+            <div className="flex items-center gap-5 text-red-600 font-[900] uppercase text-[15px] tracking-[0.2em] group-hover:gap-8 transition-all mt-auto relative z-10">
+              <span>EMERGENCY LINE</span>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </div>
           </button>
         </div>
@@ -451,8 +459,8 @@ const DrHVACVoiceAgent: React.FC = () => {
             <Visualizer isActive={isConnected} audioContext={inputAudioContextRef.current} sourceNode={inputSourceRef.current} />
 
             <div className="flex flex-col items-center gap-6 md:gap-10">
-              <button onClick={handleDisconnect} className="flex items-center justify-center w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full shadow-2xl transition-all hover:bg-red-700 hover:scale-110 active:scale-95 group touch-manipulation">
-                 <svg className="w-10 h-10 md:w-14 md:h-14 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M6 18L18 6M6 6l12 12" /></svg>
+              <button onClick={handleDisconnect} className="flex items-center justify-center w-28 h-28 md:w-32 md:h-32 bg-black text-white rounded-full shadow-2xl transition-all hover:bg-red-700 hover:scale-110 active:scale-95 group touch-manipulation">
+                 <svg className="w-12 h-12 md:w-14 md:h-14 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
           </div>

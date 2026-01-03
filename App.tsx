@@ -50,44 +50,45 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#f8fafd]">
       
-      {/* High-Contrast Top Bar */}
-      <div className="w-full bg-[#1a2333] py-3 md:py-4 px-4 md:px-6 flex justify-center border-b-4 border-[#f37021] sticky top-0 z-[50] shadow-xl">
-        <div className="max-w-7xl w-full flex justify-between items-center text-[12px] md:text-[14px] font-[900] text-white uppercase tracking-[0.1em] md:tracking-[0.2em]">
+      {/* High-Contrast Top Bar - Fixed "Faded" Look */}
+      <div className="w-full bg-[#1a2333] py-3 md:py-4 px-4 md:px-6 flex justify-center border-b-4 border-[#f37021] sticky top-0 z-[100] shadow-2xl">
+        <div className="max-w-7xl w-full flex justify-between items-center">
            <div className="flex items-center gap-4 md:gap-10">
-             <div className="flex items-center gap-2 md:gap-3 text-[#f37021]">
-                <span className="text-lg md:text-xl">★★★★★</span>
-                <span className="text-white border-b border-[#f37021]/30 pb-0.5 hidden sm:inline">2,277 REVIEWS</span>
+             <div className="flex items-center gap-2 md:gap-3">
+                <span className="text-lg md:text-xl text-[#f37021] drop-shadow-[0_0_8px_rgba(243,112,33,0.3)]">★★★★★</span>
+                <span className="text-white font-black text-[11px] md:text-[13px] uppercase tracking-widest hidden sm:inline">2,277 REVIEWS</span>
              </div>
-             <div className="hidden md:flex items-center gap-3 text-white/60">
-                <div className="w-2 h-2 rounded-full bg-[#f37021]"></div>
-                <span>TORONTO'S #1 HVAC EXPERTS</span>
+             <div className="flex items-center gap-3">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#f37021] shadow-[0_0_10px_rgba(243,112,33,0.6)]"></div>
+                <span className="text-white font-black text-[11px] md:text-[13px] uppercase tracking-widest">TORONTO'S #1 HVAC EXPERTS</span>
              </div>
            </div>
+           
            <div className="flex items-center gap-4 md:gap-8">
-             <div className="hidden lg:flex flex-col items-end leading-tight">
-                <span className="text-[10px] text-white/40 tracking-widest uppercase">GTA RESPONSE:</span>
-                <span className="text-[12px] text-emerald-400 font-black">{liveResponseTime}</span>
+             <div className="flex flex-col items-end leading-none">
+                <span className="text-[9px] md:text-[11px] text-slate-300 font-black tracking-[0.1em] uppercase mb-1">GTA RESPONSE:</span>
+                <span className="text-[14px] md:text-[16px] text-[#10b981] font-black drop-shadow-[0_0_10px_rgba(16,185,129,0.3)] uppercase tracking-tight">{liveResponseTime}</span>
              </div>
-             <a href="tel:2894984082" className="text-[#f37021] hover:text-white transition-all font-black text-xl md:text-2xl tracking-tighter">289-498-4082</a>
+             <a href="tel:2894984082" className="hidden sm:block text-[#f37021] hover:text-white transition-all font-black text-xl md:text-2xl tracking-tighter">289-498-4082</a>
            </div>
         </div>
       </div>
 
       <div className="w-full max-w-7xl px-4 md:px-8 py-10 md:py-16 flex flex-col items-center">
         {/* Logo & Navigation */}
-        <div className="w-full flex justify-between items-center mb-16 md:mb-28 animate-slide-up-fade">
+        <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8 md:gap-0 mb-16 md:mb-28 animate-slide-up-fade">
            <div className="flex items-center gap-4 md:gap-6 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <div className="w-12 h-12 md:w-20 md:h-20 bg-[#f37021] rounded-xl md:rounded-2xl flex items-center justify-center text-white font-[900] text-xl md:text-3xl shadow-2xl group-hover:scale-105 transition-all">Dr</div>
+              <div className="w-14 h-14 md:w-20 md:h-20 bg-[#f37021] rounded-2xl flex items-center justify-center text-white font-[900] text-2xl md:text-3xl shadow-2xl group-hover:scale-105 transition-all">Dr</div>
               <div className="flex flex-col">
-                <p className="text-[24px] md:text-[42px] font-[900] text-[#004a99] tracking-[-0.03em] uppercase leading-[0.85]">HVAC & PLUMBING</p>
-                <p className="text-[9px] md:text-[13px] font-[900] text-slate-400 uppercase tracking-[0.4em] md:tracking-[0.65em] mt-1 md:mt-2 ml-1">OFFICIAL GTA SERVICE</p>
+                <p className="text-[28px] md:text-[42px] font-[900] text-[#004a99] tracking-[-0.03em] uppercase leading-[0.85]">HVAC & PLUMBING</p>
+                <p className="text-[10px] md:text-[13px] font-[900] text-slate-400 uppercase tracking-[0.4em] md:tracking-[0.65em] mt-1 md:mt-2 ml-1">OFFICIAL GTA SERVICE</p>
               </div>
            </div>
            
-           <nav className="hidden lg:flex items-center gap-12 text-[15px] font-[900] uppercase tracking-widest text-[#004a99]">
+           <nav className="flex items-center gap-6 md:gap-12 text-[13px] md:text-[15px] font-[900] uppercase tracking-widest text-[#004a99]">
              <button onClick={() => showLegal('map')} className="hover:text-[#f37021] transition-all">Service Area</button>
              <button onClick={() => scrollToSection('reviews-section')} className="hover:text-[#f37021] transition-all">Reviews</button>
-             <button onClick={() => scrollToSection('sarah-agent')} className="bg-[#004a99] text-white px-10 py-5 rounded-2xl shadow-2xl hover:bg-[#1a2333] transition-all font-[900] text-[14px] uppercase tracking-widest">CONNECT NOW</button>
+             <button onClick={() => scrollToSection('sarah-agent')} className="bg-[#004a99] text-white px-6 md:px-10 py-3 md:py-5 rounded-2xl shadow-xl hover:bg-[#1a2333] transition-all font-[900] text-[12px] md:text-[14px] uppercase tracking-widest">START DEMO</button>
            </nav>
         </div>
 
@@ -122,10 +123,10 @@ const App: React.FC = () => {
 
         <FAQSection />
 
-        {/* EXECUTIVE DEMO FOOTER - BOLDER & STRIKING BADGES */}
+        {/* EXECUTIVE DEMO FOOTER */}
         <footer className="w-full mt-24 md:mt-48 pt-16 md:pt-32 pb-10 md:pb-16 flex flex-col items-center bg-[#1a2333] rounded-[3rem] md:rounded-[6rem] shadow-2xl border-t-8 border-[#f37021] relative overflow-hidden">
            
-           {/* Certification Badges - PROFESSIONAL STAMPS */}
+           {/* Certification Badges */}
            <div className="max-w-6xl w-full mb-16 md:mb-32 px-6 md:px-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
                  <div className="bg-white/5 backdrop-blur-md border-2 border-white/20 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-10 flex flex-col items-center text-center group hover:bg-white/10 transition-all">
@@ -172,16 +173,6 @@ const App: React.FC = () => {
                 <button onClick={() => showLegal('terms')} className="hover:text-[#f37021] transition-all border-b-2 md:border-b-4 border-transparent hover:border-[#f37021]/30 pb-2 md:pb-3">Service Terms</button>
                 <button onClick={() => showLegal('map')} className="hover:text-[#f37021] transition-all border-b-2 md:border-b-4 border-transparent hover:border-[#f37021]/30 pb-2 md:pb-3">Technician Map</button>
               </div>
-           </div>
-
-           {/* Google Reviews Badge */}
-           <div className="mt-20 md:mt-32 flex flex-col sm:flex-row items-center gap-6 md:gap-12 px-8 md:px-10 py-4 md:py-6 bg-white/5 rounded-3xl md:rounded-full border border-white/10 mx-4">
-              <div className="flex items-center gap-3">
-                 <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center font-black text-[#1a2333]">G</div>
-                 <span className="text-white font-black text-xs md:text-sm tracking-widest">4.9 / 5.0 STAR RATED</span>
-              </div>
-              <div className="hidden sm:block w-px h-8 bg-white/20"></div>
-              <div className="flex gap-1 text-orange-400">★★★★★</div>
            </div>
         </footer>
       </div>
