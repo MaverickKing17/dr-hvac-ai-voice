@@ -1,16 +1,24 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DrHVACVoiceAgent from './components/DrHVACVoiceAgent';
 import FAQSection from './components/FAQSection';
 
 const App: React.FC = () => {
   const [activeLegalContent, setActiveLegalContent] = useState<{ title: string; body: string } | null>(null);
+  const [liveResponseTime, setLiveResponseTime] = useState('3h 42m');
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const minutes = Math.floor(Math.random() * 60);
+      setLiveResponseTime(`3h ${minutes}m`);
+    }, 15000);
+    return () => clearInterval(timer);
+  }, []);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
       if (id === 'sarah-agent') {
         element.classList.add('ring-[12px]', 'ring-orange-500/10');
         setTimeout(() => element.classList.remove('ring-[12px]', 'ring-orange-500/10'), 1500);
@@ -22,15 +30,15 @@ const App: React.FC = () => {
     const contents = {
       privacy: {
         title: "Privacy Policy",
-        body: "Dr. HVAC respects your privacy. We collect information such as your home address, contact details, and current heating system specs (Oil, Electric, or Gas) specifically to evaluate your eligibility for the $7,500 Heat Pump Rebate program and to ensure accurate dispatch of our technicians across the GTA. We never sell your data to third-party marketers."
+        body: "Dr. HVAC respects your privacy. Data collected is exclusively used for GTA dispatch and rebate verification. We never share customer profiles with third parties."
       },
       terms: {
         title: "Terms of Service",
-        body: "Our 4-hour emergency response guarantee applies to critical HVAC failures (No Heat in Winter / No AC in Extreme Heat) within our primary service zones. Dispatch priority is managed by Mike our Emergency Lead. Diagnostic fees are waived if we fail to arrive within the promised window. All installations are performed by licensed TSSA-certified technicians."
+        body: "Our 4-hour guarantee applies to critical system failures in specified GTA zones. Full T&C provided upon on-site assessment."
       },
       map: {
         title: "Service Map",
-        body: "Dr. HVAC & Plumbing is Toronto's primary official service provider. Our active service territory covers the entire Greater Toronto Area, including: Old Toronto, North York, Etobicoke, Scarborough, Mississauga, Brampton, Vaughan, Markham, and Richmond Hill."
+        body: "Covering Toronto, North York, Etobicoke, Scarborough, Mississauga, Brampton, Vaughan, and Markham."
       }
     };
     setActiveLegalContent(contents[type]);
@@ -40,20 +48,23 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col items-center bg-[#f8fafd]">
       
       {/* High-Contrast Top Bar */}
-      <div className="w-full bg-[#1a2333] py-4 px-6 flex justify-center border-b-4 border-[#f37021]">
-        <div className="max-w-7xl w-full flex justify-between items-center text-[14px] font-black text-white uppercase tracking-[0.2em]">
+      <div className="w-full bg-[#1a2333] py-4 px-6 flex justify-center border-b-4 border-[#f37021] sticky top-0 z-[50] shadow-xl">
+        <div className="max-w-7xl w-full flex justify-between items-center text-[14px] font-[900] text-white uppercase tracking-[0.2em]">
            <div className="flex items-center gap-10">
              <div className="flex items-center gap-3 text-[#f37021]">
                 <span className="text-xl">★★★★★</span>
                 <span className="text-white border-b-2 border-[#f37021]/30 pb-1">2,277 GOOGLE REVIEWS</span>
              </div>
-             <div className="hidden md:flex items-center gap-3 text-white/40">
+             <div className="hidden md:flex items-center gap-3 text-white/60">
                 <div className="w-2 h-2 rounded-full bg-[#f37021]"></div>
                 <span>TORONTO'S #1 HVAC EXPERTS</span>
              </div>
            </div>
-           <div className="flex items-center gap-6">
-             <span className="text-white/60 font-black">EMERGENCY LINE:</span>
+           <div className="flex items-center gap-8">
+             <div className="hidden lg:flex flex-col items-end leading-tight">
+                <span className="text-[10px] text-white/40 tracking-widest">CURRENT GTA WAIT:</span>
+                <span className="text-[12px] text-emerald-400 font-black">{liveResponseTime}</span>
+             </div>
              <a href="tel:2894984082" className="text-[#f37021] hover:text-white transition-all font-black text-2xl tracking-tighter">289-498-4082</a>
            </div>
         </div>
@@ -61,118 +72,93 @@ const App: React.FC = () => {
 
       <div className="w-full max-w-7xl px-8 py-16 flex flex-col items-center">
         {/* Logo & Navigation */}
-        <div className="w-full flex justify-between items-center mb-28">
-           <div 
-             className="flex items-center gap-6 cursor-pointer group" 
-             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-           >
-              <div className="w-[72px] h-[72px] bg-[#f37021] rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-xl shadow-orange-500/20 group-hover:scale-105 transition-all">Dr</div>
+        <div className="w-full flex justify-between items-center mb-28 animate-slide-up-fade">
+           <div className="flex items-center gap-6 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <div className="w-20 h-20 bg-[#f37021] rounded-2xl flex items-center justify-center text-white font-[900] text-3xl shadow-2xl group-hover:scale-105 transition-all">Dr</div>
               <div className="flex flex-col">
-                <p className="text-[38px] font-black text-[#004a99] tracking-[-0.03em] uppercase leading-[0.9]">HVAC & PLUMBING</p>
-                <p className="text-[14px] font-[900] text-slate-400 uppercase tracking-[0.55em] mt-1.5 ml-0.5">TORONTO & GTA OFFICIAL SERVICE</p>
+                <p className="text-[42px] font-[900] text-[#004a99] tracking-[-0.03em] uppercase leading-[0.85]">HVAC & PLUMBING</p>
+                <p className="text-[13px] font-[900] text-slate-400 uppercase tracking-[0.65em] mt-2 ml-1">TORONTO & GTA OFFICIAL SERVICE</p>
               </div>
            </div>
            
-           <nav className="hidden lg:flex items-center gap-12 text-[15px] font-black uppercase tracking-widest text-[#004a99]">
+           <nav className="hidden lg:flex items-center gap-12 text-[15px] font-[900] uppercase tracking-widest text-[#004a99]">
              <button onClick={() => showLegal('map')} className="hover:text-[#f37021] transition-all">Service Area</button>
-             <button className="hover:text-[#f37021] transition-all">Reviews</button>
-             <button 
-               onClick={() => scrollToSection('sarah-agent')}
-               className="bg-[#f37021] text-white px-12 py-6 rounded-2xl shadow-[0_25px_50px_-12px_rgba(243,112,33,0.5)] transform hover:-translate-y-2 active:translate-y-0 transition-all font-black text-[16px] uppercase tracking-widest"
-             >
-               BOOK A SPECIALIST
-             </button>
+             <button className="hover:text-[#f37021] transition-all border-b-2 border-transparent hover:border-[#f37021]/20">Reviews</button>
+             <button onClick={() => scrollToSection('sarah-agent')} className="bg-[#004a99] text-white px-10 py-5 rounded-2xl shadow-2xl hover:bg-[#1a2333] transition-all font-[900] text-[14px] uppercase tracking-widest">BOOK NOW</button>
            </nav>
         </div>
 
-        {/* Hero Section */}
-        <div className="text-center mb-24 animate-slide-up-fade">
-           <div className="inline-flex items-center gap-3 px-6 py-2 bg-orange-50 rounded-full mb-10 border border-orange-100">
-              <span className="w-2 h-2 rounded-full bg-[#f37021] animate-pulse"></span>
-              <p className="text-[13px] text-[#f37021] font-black uppercase tracking-[0.4em]">Live Agent Dispatch Active</p>
-           </div>
-           <h1 className="text-6xl md:text-8xl font-black text-black tracking-tighter mb-10 leading-[0.85]">
-             MEET YOUR<br/>
-             <span className="text-[#004a99]">EXPERT TEAM.</span>
-           </h1>
-           <p className="text-slate-800 font-bold max-w-4xl mx-auto leading-relaxed text-2xl md:text-3xl px-6 opacity-90">
-             Instantly connect with Sarah for energy rebates or Mike for emergency dispatch and our 4-hour response guarantee.
-           </p>
-        </div>
-
-        <div id="sarah-agent" className="w-full transition-all duration-700">
+        <div id="sarah-agent" className="w-full">
           <DrHVACVoiceAgent />
         </div>
 
-        {/* ENHANCED TRUST BADGE SECTION */}
-        <div className="w-full max-w-7xl mt-32 mb-32 flex flex-col items-center">
-           <div className="bg-white rounded-[5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border-2 border-slate-50 p-20 w-full max-w-xl flex flex-col items-center text-center transition-all hover:shadow-[0_60px_140px_-30px_rgba(0,0,0,0.12)] group relative overflow-hidden">
-              {/* Subtle background glow */}
-              <div className="absolute inset-0 bg-gradient-to-b from-orange-50/20 to-transparent pointer-events-none"></div>
-              
-              <span className="text-9xl font-black text-black tracking-tighter mb-10 group-hover:scale-105 transition-transform relative z-10">100%</span>
-              
-              <div className="bg-orange-50 border-2 border-orange-100 rounded-[2.5rem] px-12 py-6 mb-10 relative z-10 transform group-hover:rotate-1 transition-all shadow-sm">
-                 <p className="text-[#f37021] font-black text-xl md:text-2xl uppercase tracking-[0.2em] leading-tight">
-                    SATISFACTION<br/>PROMISE
-                 </p>
-              </div>
+        <FAQSection />
 
-              <p className="text-slate-400 font-black text-[14px] uppercase tracking-[0.4em] relative z-10 mb-2">MONEY BACK GUARANTEE</p>
-              <div className="w-12 h-1 bg-orange-200 rounded-full mt-2 group-hover:w-24 transition-all"></div>
+        {/* HIGH-END DEMO FOOTER SECTION */}
+        <footer className="w-full mt-40 pt-24 pb-12 flex flex-col items-center bg-white rounded-[6rem] shadow-[0_-40px_100px_-20px_rgba(0,0,0,0.03)] border-t border-slate-50 relative overflow-hidden">
+           
+           {/* GTA Status Bar - Demo Feature */}
+           <div className="max-w-4xl w-full mb-24 px-8">
+              <div className="bg-slate-50 border-2 border-slate-100 rounded-[3rem] p-10 flex flex-col md:flex-row items-center justify-between gap-12 relative">
+                 <div className="flex items-center gap-8">
+                    <div className="relative">
+                       <div className="w-20 h-20 bg-[#004a99] rounded-3xl flex items-center justify-center text-white shadow-2xl">
+                          <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                       </div>
+                       <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 border-4 border-white rounded-full animate-pulse"></div>
+                    </div>
+                    <div>
+                       <p className="text-[12px] font-[900] text-[#004a99] uppercase tracking-[0.3em] mb-1">GTA COVERAGE ACTIVE</p>
+                       <p className="text-2xl font-[900] text-slate-800 tracking-tight">System Status: Optimal</p>
+                    </div>
+                 </div>
+                 <div className="flex gap-4">
+                    <div className="bg-white px-8 py-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">AVAILABILITY</p>
+                       <p className="text-xl font-[900] text-[#004a99]">98.2%</p>
+                    </div>
+                    <div className="bg-white px-8 py-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">LIVE AGENTS</p>
+                       <p className="text-xl font-[900] text-[#f37021]">12 ONLINE</p>
+                    </div>
+                 </div>
+              </div>
+           </div>
+
+           <div className="flex flex-col items-center gap-6 mb-20 group">
+              <div className="flex items-center gap-5">
+                 <div className="w-14 h-14 bg-[#1a2333] rounded-2xl flex items-center justify-center text-white font-black text-xl group-hover:scale-110 transition-transform">Dr</div>
+                 <span className="font-[900] text-[#1a2333] tracking-tighter text-[38px] uppercase">HVAC & PLUMBING</span>
+              </div>
+              <div className="h-1.5 w-24 bg-orange-500 rounded-full group-hover:w-40 transition-all"></div>
            </div>
            
-           <div className="mt-20 flex flex-col items-center gap-4">
-              <p className="text-[13px] font-black text-slate-300 uppercase tracking-[0.8em] animate-pulse">
-                 OFFICIAL DR. HVAC SERVICE GUARANTEE
-              </p>
-              <div className="flex gap-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="w-2 h-2 rounded-full bg-slate-100"></div>
-                ))}
-              </div>
-           </div>
-        </div>
-
-        <div id="faq-section" className="w-full">
-          <FAQSection />
-        </div>
-
-        {/* REFINED FOOTER */}
-        <footer className="w-full mt-32 py-24 border-t border-slate-100 flex flex-col items-center">
-           <div className="flex items-center gap-5 mb-14">
-              <div className="w-12 h-12 bg-[#1a2333] rounded-[14px] flex items-center justify-center text-white font-black text-lg">Dr</div>
-              <span className="font-black text-[#1a2333] tracking-tight text-[28px] uppercase">HVAC & PLUMBING</span>
-           </div>
-           
-           <div className="flex flex-col items-center text-center space-y-16">
-              <p className="text-[16px] md:text-[20px] font-black text-slate-700 uppercase tracking-[0.85em] leading-relaxed max-w-5xl px-4 opacity-90">
+           <div className="flex flex-col items-center text-center space-y-12">
+              <p className="text-[18px] md:text-[24px] font-[900] text-slate-800 uppercase tracking-[0.7em] leading-relaxed max-w-6xl px-4">
                  © 2026 DR. HVAC OFFICIAL SITE — TORONTO, ONTARIO
               </p>
               
-              <div className="flex flex-wrap justify-center gap-12 md:gap-24 text-[14px] font-[900] text-slate-500 uppercase tracking-[0.45em]">
-                <button onClick={() => showLegal('privacy')} className="hover:text-[#004a99] transition-colors duration-300 border-b-2 border-transparent hover:border-[#004a99]/20 pb-1">Privacy Policy</button>
-                <button onClick={() => showLegal('terms')} className="hover:text-[#004a99] transition-colors duration-300 border-b-2 border-transparent hover:border-[#004a99]/20 pb-1">Terms of Service</button>
-                <button onClick={() => showLegal('map')} className="hover:text-[#004a99] transition-colors duration-300 border-b-2 border-transparent hover:border-[#004a99]/20 pb-1">Service Map</button>
+              <div className="flex flex-wrap justify-center gap-12 md:gap-28 text-[15px] font-[900] text-[#004a99] uppercase tracking-[0.5em]">
+                <button onClick={() => showLegal('privacy')} className="hover:text-[#f37021] transition-all border-b-4 border-transparent hover:border-[#f37021]/40 pb-2">Privacy Policy</button>
+                <button onClick={() => showLegal('terms')} className="hover:text-[#f37021] transition-all border-b-4 border-transparent hover:border-[#f37021]/40 pb-2">Terms of Service</button>
+                <button onClick={() => showLegal('map')} className="hover:text-[#f37021] transition-all border-b-4 border-transparent hover:border-[#f37021]/40 pb-2">Service Map</button>
               </div>
+           </div>
+
+           <div className="mt-32 w-full flex flex-col md:flex-row items-center justify-center gap-20 opacity-40 grayscale group-hover:grayscale-0 transition-all">
+              <div className="text-[12px] font-black tracking-[0.8em] text-slate-400">TSSA CERTIFIED #72821</div>
+              <div className="text-[12px] font-black tracking-[0.8em] text-slate-400">HRAI MEMBER ACTIVE</div>
+              <div className="text-[12px] font-black tracking-[0.8em] text-slate-400">BBB ACCREDITED A+</div>
            </div>
         </footer>
       </div>
 
-      {/* Simple Legal Modal */}
       {activeLegalContent && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#1a2333]/80 backdrop-blur-xl animate-fade-in">
-          <div className="bg-white rounded-[4rem] p-16 max-w-2xl w-full shadow-2xl border-4 border-[#004a99]/10 animate-slide-up-fade">
-            <h3 className="text-4xl font-black text-[#004a99] mb-8 uppercase tracking-tighter">{activeLegalContent.title}</h3>
-            <p className="text-slate-600 text-xl font-bold leading-relaxed mb-12">
-              {activeLegalContent.body}
-            </p>
-            <button 
-              onClick={() => setActiveLegalContent(null)}
-              className="w-full py-6 bg-[#1a2333] text-white font-black text-[14px] uppercase tracking-widest rounded-2xl hover:bg-black transition-all shadow-xl shadow-slate-900/20"
-            >
-              CLOSE WINDOW
-            </button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#1a2333]/90 backdrop-blur-3xl animate-fade-in">
+          <div className="bg-white rounded-[4rem] p-20 max-w-2xl w-full shadow-2xl border-4 border-[#004a99]/10 animate-slide-up-fade">
+            <h3 className="text-4xl font-[900] text-[#004a99] mb-8 uppercase tracking-tighter">{activeLegalContent.title}</h3>
+            <p className="text-slate-700 text-xl font-bold leading-relaxed mb-12">{activeLegalContent.body}</p>
+            <button onClick={() => setActiveLegalContent(null)} className="w-full py-8 bg-[#1a2333] text-white font-[900] text-[14px] uppercase tracking-widest rounded-2xl hover:bg-black transition-all">DISMISS</button>
           </div>
         </div>
       )}
