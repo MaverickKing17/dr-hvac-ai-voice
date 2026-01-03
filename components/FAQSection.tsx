@@ -10,25 +10,25 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className={`transition-all duration-300 rounded-[2rem] mb-5 border-2 ${isOpen ? 'bg-white border-[#004a99]/20 shadow-xl' : 'bg-slate-50 border-transparent hover:border-slate-200'}`}>
+    <div className={`transition-all duration-300 rounded-3xl mb-4 border-2 ${isOpen ? 'bg-white border-[#004a99]/20 shadow-lg' : 'bg-slate-50 border-transparent hover:border-slate-200'}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-10 px-10 flex items-center justify-between text-left focus:outline-none group"
+        className="w-full py-6 px-8 flex items-center justify-between text-left focus:outline-none group"
       >
-        <span className={`text-[22px] font-black tracking-tight transition-all duration-300 ${isOpen ? 'text-[#004a99] translate-x-2' : 'text-slate-950 group-hover:text-[#004a99] group-hover:translate-x-2'}`}>
+        <span className={`text-[17px] font-black tracking-tight transition-all duration-300 ${isOpen ? 'text-[#004a99] translate-x-1' : 'text-slate-900 group-hover:text-[#004a99] group-hover:translate-x-1'}`}>
           {question}
         </span>
-        <span className={`flex-shrink-0 ml-6 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-[#004a99] text-white rotate-180 shadow-lg' : 'bg-slate-200 text-slate-600 group-hover:bg-slate-300'}`}>
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <span className={`flex-shrink-0 ml-4 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-[#004a99] text-white rotate-180' : 'bg-slate-200 text-slate-600'}`}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M19 9l-7 7-7-7" />
           </svg>
         </span>
       </button>
       <div 
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[600px] opacity-100 pb-12 px-10' : 'max-h-0 opacity-0 px-10'}`}
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[400px] opacity-100 pb-8 px-8' : 'max-h-0 opacity-0 px-8'}`}
       >
-        <div className="pl-0 border-l-8 border-blue-100 ml-1 pl-10">
-          <p className="text-[20px] text-black leading-relaxed font-bold">
+        <div className="pl-6 border-l-4 border-blue-100">
+          <p className="text-[15px] text-slate-700 leading-relaxed font-semibold">
             {answer}
           </p>
         </div>
@@ -54,31 +54,27 @@ const FAQSection: React.FC = () => {
     {
       question: "Is Sarah a real person?",
       answer: "Sarah is our advanced AI Lead Specialist. She is available 24/7 to provide instant service quotes, verify rebate eligibility, and prioritize emergency dispatching when every minute counts."
-    },
-    {
-      question: "What financing options do you offer?",
-      answer: "We offer industry-leading financing including 0% interest for 6-12 months O.A.C., and low-interest monthly payment plans designed to make energy-efficient upgrades affordable for every GTA homeowner."
     }
   ];
 
   return (
-    <div className="w-full max-w-5xl mx-auto mt-24 px-4">
-      <div className="text-center mb-16">
-        <h3 className="text-[17px] font-black text-[#f37021] uppercase tracking-[0.5em] mb-4">Customer Support Center</h3>
-        <h2 className="text-6xl font-black text-black tracking-tighter">Frequently Asked Questions</h2>
+    <div className="w-full max-w-4xl mx-auto mt-20 px-4">
+      <div className="text-center mb-12">
+        <h3 className="text-[13px] font-black text-[#f37021] uppercase tracking-[0.4em] mb-4">Customer Support Center</h3>
+        <h2 className="text-4xl font-black text-black tracking-tighter">Frequently Asked Questions</h2>
       </div>
       
-      <div className="bg-white rounded-[4rem] shadow-2xl border-4 border-slate-100 p-12 md:p-16">
-        <div className="space-y-6">
+      <div className="bg-white rounded-[2.5rem] shadow-xl border-2 border-slate-100 p-8 md:p-12">
+        <div className="space-y-4">
           {faqs.map((faq, index) => (
             <FAQItem key={index} question={faq.question} answer={faq.answer} />
           ))}
         </div>
       </div>
       
-      <div className="mt-20 text-center">
-        <p className="text-[19px] text-slate-900 font-black uppercase tracking-widest">
-          Need more help? <span className="text-[#004a99] hover:text-[#f37021] cursor-pointer transition-colors border-b-4 border-blue-200 pb-1 ml-2">Speak with a Live Human Dispatcher</span>
+      <div className="mt-12 text-center">
+        <p className="text-[14px] text-slate-500 font-black uppercase tracking-widest">
+          Need more help? <span className="text-[#004a99] hover:text-[#f37021] cursor-pointer transition-colors border-b-2 border-blue-100 pb-0.5 ml-2">Speak with a Live Human</span>
         </p>
       </div>
     </div>
