@@ -93,21 +93,21 @@ const App: React.FC = () => {
           <DrHVACVoiceAgent />
         </div>
 
-        {/* Enhanced Trust Badges Section - BOLDER TEXT & HIGHER CONTRAST */}
+        {/* Enhanced Trust Badges Section - FIXED HOMESTARS URL */}
         <div className="w-full max-w-6xl mt-24 mb-24">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-8 items-stretch">
              
-             {/* HomeStars Badge */}
+             {/* HomeStars Badge - Robust Search URL to prevent 404s */}
              <a 
-               href="https://homestars.com/companies/2785535-dr-hvac" 
+               href="https://homestars.com/companies/search?filter%5Bquery%5D=Dr.+HVAC" 
                target="_blank" 
                rel="noopener noreferrer"
-               className="flex flex-col items-center group text-center p-12 bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:-translate-y-1"
+               className="flex flex-col items-center group text-center p-12 bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-blue-100"
              >
                 <div className="mb-4">
                   <span className="text-6xl font-black text-[#1a2333] tracking-tighter block group-hover:text-blue-600 transition-colors">HomeStars</span>
                 </div>
-                <div className="px-8 py-3 bg-green-50 rounded-xl border border-green-200 mb-2">
+                <div className="px-8 py-3 bg-green-50 rounded-xl border-2 border-green-200 mb-2">
                   <span className="text-[16px] font-black uppercase tracking-[0.25em] text-green-800">Best of 2024 Winner</span>
                 </div>
                 <p className="mt-6 text-[14px] font-black text-slate-600 uppercase tracking-widest">Verified Contractor</p>
@@ -118,12 +118,12 @@ const App: React.FC = () => {
                href="https://www.bbb.org/search?find_country=CAN&find_text=Dr.%20HVAC&find_loc=Brampton%2C%20ON" 
                target="_blank" 
                rel="noopener noreferrer"
-               className="flex flex-col items-center group text-center p-12 bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:-translate-y-1"
+               className="flex flex-col items-center group text-center p-12 bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-blue-100"
              >
                 <div className="mb-4">
                   <span className="text-6xl font-black text-[#004a99] tracking-tighter block">BBB<span className="text-[#f37021]">.</span></span>
                 </div>
-                <div className="px-8 py-3 bg-blue-50 rounded-xl border border-blue-200 mb-2">
+                <div className="px-8 py-3 bg-blue-50 rounded-xl border-2 border-blue-200 mb-2">
                   <span className="text-[16px] font-black uppercase tracking-[0.25em] text-[#004a99]">Accredited A+ Rating</span>
                 </div>
                 <p className="mt-6 text-[14px] font-black text-slate-600 uppercase tracking-widest">Identity Verified</p>
@@ -134,12 +134,12 @@ const App: React.FC = () => {
                href="https://www.drhvac.ca/guarantee/" 
                target="_blank" 
                rel="noopener noreferrer"
-               className="flex flex-col items-center group text-center p-12 bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:-translate-y-1"
+               className="flex flex-col items-center group text-center p-12 bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-orange-100"
              >
                 <div className="mb-4">
                   <span className="text-6xl font-black text-slate-900 tracking-tighter block group-hover:text-[#f37021] transition-colors">100%</span>
                 </div>
-                <div className="px-8 py-3 bg-orange-50 rounded-xl border border-orange-200 mb-2">
+                <div className="px-8 py-3 bg-orange-50 rounded-xl border-2 border-orange-200 mb-2">
                   <span className="text-[16px] font-black uppercase tracking-[0.25em] text-[#f37021]">Satisfaction Promise</span>
                 </div>
                 <p className="mt-6 text-[14px] font-black text-slate-600 uppercase tracking-widest">Money Back Policy</p>
