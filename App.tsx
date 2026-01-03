@@ -54,7 +54,7 @@ const App: React.FC = () => {
                href="https://www.drhvac.ca/heating/" 
                target="_blank" 
                rel="noopener noreferrer" 
-               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1"
+               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1 cursor-pointer"
              >
                Heating
              </a>
@@ -62,7 +62,7 @@ const App: React.FC = () => {
                href="https://www.drhvac.ca/air-conditioning/" 
                target="_blank" 
                rel="noopener noreferrer" 
-               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1"
+               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1 cursor-pointer"
              >
                Cooling
              </a>
@@ -70,7 +70,7 @@ const App: React.FC = () => {
                href="https://www.drhvac.ca/promotions-rebates/" 
                target="_blank" 
                rel="noopener noreferrer" 
-               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1"
+               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1 cursor-pointer"
              >
                Rebates
              </a>
@@ -103,12 +103,12 @@ const App: React.FC = () => {
         <div className="w-full max-w-6xl mt-24 mb-24">
           <div className="flex justify-center items-center">
              
-             {/* Only Guarantee Badge Kept for Verified Trust */}
+             {/* Verified Trust Badge */}
              <a 
                href="https://www.drhvac.ca/guarantee/" 
                target="_blank" 
                rel="noopener noreferrer"
-               className="flex flex-col items-center group text-center p-12 bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl transition-all hover:shadow-orange-500/20 hover:-translate-y-2 hover:border-orange-400 w-full max-sm"
+               className="flex flex-col items-center group text-center p-12 bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl transition-all hover:shadow-orange-500/20 hover:-translate-y-2 hover:border-orange-400 w-full max-w-sm"
              >
                 <div className="mb-6">
                   <span className="text-6xl font-black text-black tracking-tighter block group-hover:text-[#f37021] transition-colors">100%</span>
