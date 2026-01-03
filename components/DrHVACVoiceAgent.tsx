@@ -36,16 +36,19 @@ const switchAgentDeclaration: FunctionDeclaration = {
   name: 'switchAgent',
   parameters: {
     type: Type.OBJECT,
-    description: 'Transfer the call to the other specialist with context.',
+    description: 'Seamlessly transfer the user to another specialist based on the conversation context.',
     properties: {
       targetAgent: { 
         type: Type.STRING, 
         enum: ['SARAH', 'MIKE'],
         description: 'The agent to hand over to.' 
       },
-      reason: { type: Type.STRING, description: 'The specific reason for the transfer (e.g. "Emergency detected" or "Rebate inquiry").' }
+      verbalHandover: { 
+        type: Type.STRING, 
+        description: 'The exact phrase you will say to the user to explain the transfer.' 
+      }
     },
-    required: ['targetAgent', 'reason'],
+    required: ['targetAgent', 'verbalHandover'],
   },
 };
 
@@ -64,7 +67,7 @@ const AGENTS: Record<AgentType, AgentConfig> = {
   SARAH: {
     name: 'Sarah',
     role: 'Reception Specialist',
-    instruction: "Role: You are Sarah, Reception Specialist for Dr. HVAC. Tone: Warm, professional, helpful. Focus: General inquiries, furnace/AC quotes, and identifying $7,500 rebate eligibility. HANDOVER PROTOCOL: If the user has an emergency (leaks, no heat, dangerous smell, flood), you MUST say: 'This sounds urgent. I am transferring you immediately to Mike, our Emergency Coordinator, to ensure we get a technician to you within 4 hours.' Then call switchAgent(targetAgent='MIKE', reason='Emergency Escalation').",
+    instruction: "Role: You are Sarah, Reception Specialist for Dr. HVAC. Tone: Warm, professional, helpful. Focus: General inquiries, furnace/AC quotes, and identifying $7,500 rebate eligibility. HANDOVER PROTOCOL: If you detect an emergency (e.g., 'no heat', 'leak', 'smell of gas'), you MUST say: 'I'm transferring you to Mike, our emergency dispatch lead, right now.' then call switchAgent with targetAgent='MIKE'.",
     voice: 'Kore',
     theme: 'bg-[#004a99]',
     accent: 'text-[#f37021]',
@@ -72,7 +75,7 @@ const AGENTS: Record<AgentType, AgentConfig> = {
   MIKE: {
     name: 'Mike',
     role: 'Emergency Dispatch',
-    instruction: "Role: You are Mike, Emergency Dispatcher for Dr. HVAC. Tone: Calm, decisive, urgent. Focus: Handling critical failures. HANDOVER PROTOCOL: If the user is asking about general maintenance, new quotes, or the $7,500 rebate, you MUST say: 'I specialize in emergency repairs. Let me connect you with Sarah; she is our rebate and new installation specialist and will guide you through that process.' Then call switchAgent(targetAgent='SARAH', reason='General Inquiry/Rebate Transfer').",
+    instruction: "Role: You are Mike, Emergency Dispatcher for Dr. HVAC. Tone: Calm, decisive, urgent. Focus: Handling critical failures. HANDOVER PROTOCOL: If the user wants a standard quote or to check for energy rebates, you MUST say: 'Sarah handles all our rebate applications and new system quotes. Let me connect you with her now.' then call switchAgent with targetAgent='SARAH'.",
     voice: 'Puck',
     theme: 'bg-[#1a2333]',
     accent: 'text-red-500',
@@ -85,6 +88,7 @@ interface EmergencyInfo { issue: string; guaranteeTime: string; }
 interface TranscriptMessage {
   sender: 'user' | 'agent' | 'system';
   text: string;
+  timestamp: string;
 }
 
 const DrHVACVoiceAgent: React.FC = () => {
@@ -123,7 +127,7 @@ const DrHVACVoiceAgent: React.FC = () => {
     if (!outputAudioContextRef.current) outputAudioContextRef.current = new AudioContextClass({ sampleRate: 24000 });
   };
 
-  const connectToGemini = async (agentKey: AgentType, isHandover: boolean = false, reason?: string) => {
+  const connectToGemini = async (agentKey: AgentType, isHandover: boolean = false) => {
     try {
       setIsError(false);
       setErrorMessage('');
@@ -133,12 +137,10 @@ const DrHVACVoiceAgent: React.FC = () => {
         setTranscript([]);
         setCurrentInputText('');
         setCurrentOutputText('');
-      } else {
-        setTranscript(prev => [...prev, { sender: 'system', text: `PROTOCOL: ${reason || 'Handover'} initiated. Connecting to ${AGENTS[agentKey].name}...` }]);
       }
 
       if (!window.isSecureContext) throw new Error('Secure connection required.');
-      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Mic support required.');
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Microphone support required.');
 
       setActiveAgent(agentKey);
       
@@ -157,6 +159,11 @@ const DrHVACVoiceAgent: React.FC = () => {
             activeRef.current = true;
             setIsHandingOver(false);
             startAudioInput(stream);
+            setTranscript(prev => [...prev, { 
+              sender: 'system', 
+              text: isHandover ? `LINE TRANSFERRED TO ${agent.name.toUpperCase()}` : `CONNECTION SECURED WITH ${agent.name.toUpperCase()}`,
+              timestamp: new Date().toLocaleTimeString()
+            }]);
           },
           onmessage: async (message: LiveServerMessage) => {
             await handleServerMessage(message, agentKey);
@@ -168,7 +175,7 @@ const DrHVACVoiceAgent: React.FC = () => {
           onerror: (e) => {
             console.error('Gemini error:', e);
             setIsError(true);
-            setErrorMessage('Network error.');
+            setErrorMessage('Network connection interrupted.');
             resetConnection();
           }
         },
@@ -188,11 +195,17 @@ const DrHVACVoiceAgent: React.FC = () => {
       setIsError(true);
       setActiveAgent(null);
       setIsHandingOver(false);
-      setErrorMessage(err.message || 'Session start failed.');
+      setErrorMessage(err.message || 'Unable to establish secure voice line.');
     }
   };
 
-  const handleHandover = async (targetAgent: AgentType, reason: string) => {
+  const handleHandoverAction = async (targetAgent: AgentType, verbalHandover: string) => {
+    setTranscript(prev => [...prev, { 
+      sender: 'system', 
+      text: `HANDOVER PROTOCOL INITIATED: TRANSFERRING TO ${targetAgent}`,
+      timestamp: new Date().toLocaleTimeString() 
+    }]);
+
     activeRef.current = false;
     sessionPromiseRef.current?.then(s => s.close());
     
@@ -201,8 +214,8 @@ const DrHVACVoiceAgent: React.FC = () => {
     nextStartTimeRef.current = 0;
 
     setTimeout(() => {
-      connectToGemini(targetAgent, true, reason);
-    }, 1200);
+      connectToGemini(targetAgent, true);
+    }, 1000);
   };
 
   const resetConnection = () => {
@@ -237,8 +250,9 @@ const DrHVACVoiceAgent: React.FC = () => {
     if (message.serverContent?.turnComplete) {
       setTranscript(prev => {
         const newHistory = [...prev];
-        if (currentInputText) newHistory.push({ sender: 'user', text: currentInputText });
-        if (currentOutputText) newHistory.push({ sender: 'agent', text: currentOutputText });
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (currentInputText) newHistory.push({ sender: 'user', text: currentInputText, timestamp: time });
+        if (currentOutputText) newHistory.push({ sender: 'agent', text: currentOutputText, timestamp: time });
         return newHistory;
       });
       setCurrentInputText('');
@@ -248,17 +262,15 @@ const DrHVACVoiceAgent: React.FC = () => {
     if (message.toolCall) {
       for (const fc of message.toolCall.functionCalls) {
         if (fc.name === 'switchAgent') {
-          const { targetAgent, reason } = fc.args as { targetAgent: AgentType, reason: string };
-          if (targetAgent !== currentAgentKey) {
-            handleHandover(targetAgent, reason);
-          }
-          sessionPromiseRef.current?.then(s => s.sendToolResponse({ functionResponses: { id: fc.id, name: fc.name, response: { result: "Switching specialists." } } }));
+          const { targetAgent, verbalHandover } = fc.args as { targetAgent: AgentType, verbalHandover: string };
+          handleHandoverAction(targetAgent, verbalHandover);
+          sessionPromiseRef.current?.then(s => s.sendToolResponse({ functionResponses: { id: fc.id, name: fc.name, response: { result: "Transfer Protocol Initiated." } } }));
         } else if (fc.name === 'updateRebateDisplay') {
           setQualifiedRebate(fc.args as any);
-          sessionPromiseRef.current?.then(s => s.sendToolResponse({ functionResponses: { id: fc.id, name: fc.name, response: { result: "OK" } } }));
+          sessionPromiseRef.current?.then(s => s.sendToolResponse({ functionResponses: { id: fc.id, name: fc.name, response: { result: "Display Updated." } } }));
         } else if (fc.name === 'confirmEmergencyBooking') {
           setEmergencyBooking(fc.args as any);
-          sessionPromiseRef.current?.then(s => s.sendToolResponse({ functionResponses: { id: fc.id, name: fc.name, response: { result: "OK" } } }));
+          sessionPromiseRef.current?.then(s => s.sendToolResponse({ functionResponses: { id: fc.id, name: fc.name, response: { result: "Dispatch Confirmed." } } }));
         }
       }
     }
@@ -300,27 +312,27 @@ const DrHVACVoiceAgent: React.FC = () => {
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col gap-12">
       
-      {/* PROFESSIONAL STATUS BAR - STRICT UI COMPLIANCE */}
-      <div className="flex flex-row items-center justify-between gap-4 px-3 py-3 bg-white border border-slate-100/80 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.04)] animate-slide-up-fade">
-         <div className="flex items-center gap-4">
+      {/* STATUS BAR - BOLDER & ENHANCED PROFESSIONALISM */}
+      <div className="flex flex-row items-center justify-between gap-4 px-3 py-3 bg-white border border-slate-100/80 rounded-full shadow-[0_12px_40px_rgba(0,0,0,0.04)] animate-slide-up-fade">
+         <div className="flex items-center gap-5">
            <div className="flex items-center gap-3 px-6 py-3 bg-[#f0f7ff] rounded-full border border-[#d2e4ff]">
-             <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] shadow-[0_0_12px_rgba(16,185,129,0.5)] animate-pulse"></div>
-             <span className="text-[11px] font-[900] text-[#004a99] uppercase tracking-[0.05em]">AI Assistants Online</span>
+             <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse"></div>
+             <span className="text-[12px] font-[900] text-[#004a99] uppercase tracking-[0.05em]">AI Assistants Online</span>
            </div>
-           <p className="text-[#94a3b8] font-[900] text-[11px] uppercase tracking-[0.12em] hidden md:block">Ready to help 24/7</p>
+           <p className="text-slate-500 font-[900] text-[11px] uppercase tracking-[0.2em] hidden md:block">Ready to help 24/7</p>
          </div>
          
-         <div className="flex items-center gap-5 pr-3">
-           <span className="text-[10px] font-[900] text-[#cbd5e1] uppercase tracking-[0.1em]">Powered by</span>
-           <div className="flex items-center gap-2.5 px-4 py-2.5 bg-[#1a2333] rounded-xl shadow-[0_12px_24px_rgba(0,0,0,0.2)]">
-             <div className="w-4.5 h-4.5 bg-gradient-to-br from-[#4285f4] via-[#9b72f3] to-[#34a853] rounded-[5px]"></div>
-             <span className="text-[10px] font-[900] text-white uppercase tracking-tight">Gemini 2.5 Live</span>
+         <div className="flex items-center gap-6 pr-4">
+           <span className="text-[10px] font-[900] text-slate-300 uppercase tracking-[0.2em]">Data Engine</span>
+           <div className="flex items-center gap-3 px-5 py-2.5 bg-[#1a2333] rounded-xl shadow-[0_12px_32px_rgba(0,0,0,0.15)] transform hover:scale-105 transition-all cursor-default">
+             <div className="w-4.5 h-4.5 bg-gradient-to-br from-[#4285f4] via-[#9b72f3] to-[#34a853] rounded-[6px]"></div>
+             <span className="text-[11px] font-[900] text-white uppercase tracking-tight">Gemini 2.5 Live</span>
            </div>
          </div>
       </div>
 
       {!isConnected || isHandingOver ? (
-        <div className={`grid md:grid-cols-2 gap-8 ${isHandingOver ? 'opacity-40 blur-[2px] pointer-events-none scale-95' : ''} transition-all duration-700`}>
+        <div className={`grid md:grid-cols-2 gap-8 ${isHandingOver ? 'opacity-30 blur-md pointer-events-none grayscale' : ''} transition-all duration-700`}>
           {/* Sarah Selector */}
           <button onClick={() => connectToGemini('SARAH')} className="group bg-white rounded-[3.5rem] border-2 border-slate-100 p-12 text-left transition-all hover:border-[#004a99] hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full">
             <div className="w-24 h-24 bg-[#004a99] rounded-[2rem] flex items-center justify-center text-white mb-10 shadow-xl group-hover:scale-110 transition-transform">
@@ -400,34 +412,69 @@ const DrHVACVoiceAgent: React.FC = () => {
               )}
             </div>
 
-            {/* LIVE TRANSCRIPT WINDOW */}
-            <div className="bg-slate-50/80 backdrop-blur-md rounded-[3rem] border-2 border-slate-100 p-8 shadow-inner">
-               <div className="flex items-center justify-between mb-6 px-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                    <p className="text-[12px] font-[900] text-slate-400 uppercase tracking-widest">Live Transcript Window</p>
+            {/* LIVE TRANSCRIPT WINDOW - HIGH CONTRAST & DYNAMIC */}
+            <div className="bg-[#fcfdfe] rounded-[3.5rem] border-2 border-slate-100 p-10 shadow-[inset_0_4px_12px_rgba(0,0,0,0.02)]">
+               <div className="flex items-center justify-between mb-8 px-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                    <p className="text-[12px] font-[900] text-slate-400 uppercase tracking-[0.2em]">Real-Time Session Logs</p>
+                  </div>
+                  <div className="px-4 py-1.5 bg-slate-100 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Secure Channel 082
                   </div>
                </div>
                
-               <div className="h-[250px] overflow-y-auto px-4 space-y-6 scrollbar-hide flex flex-col">
+               <div className="h-[320px] overflow-y-auto px-4 space-y-8 scrollbar-hide flex flex-col">
                   {transcript.map((msg, i) => (
                     msg.sender === 'system' ? (
                       <div key={i} className="flex justify-center py-6 animate-slide-up-fade">
-                         <div className="px-8 py-3 bg-[#1a2333] text-white rounded-full border border-white/10 text-[11px] font-[900] uppercase tracking-[0.2em] shadow-2xl">
+                         <div className="px-10 py-3 bg-[#1a2333] text-white rounded-full border border-white/10 text-[11px] font-[900] uppercase tracking-[0.25em] shadow-2xl flex items-center gap-4">
+                            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
                             {msg.text}
                          </div>
                       </div>
                     ) : (
                       <div key={i} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start animate-slide-up-fade'}`}>
-                        <span className={`text-[10px] font-[900] uppercase tracking-widest mb-2 ${msg.sender === 'user' ? 'text-slate-400' : 'text-blue-500'}`}>
-                          {msg.sender === 'user' ? 'You' : (activeAgent && AGENTS[activeAgent].name)}
-                        </span>
-                        <div className={`max-w-[85%] px-6 py-4 rounded-3xl font-bold text-[15px] leading-relaxed ${msg.sender === 'user' ? 'bg-white border-2 border-slate-100 text-slate-700 rounded-tr-none' : 'bg-[#1a2333] text-white rounded-tl-none shadow-xl'}`}>
+                        <div className="flex items-center gap-3 mb-2 px-2">
+                           <span className={`text-[10px] font-[900] uppercase tracking-widest ${msg.sender === 'user' ? 'text-slate-400' : 'text-[#004a99]'}`}>
+                              {msg.sender === 'user' ? 'Client' : (activeAgent && AGENTS[activeAgent].name)}
+                           </span>
+                           <span className="text-[9px] font-bold text-slate-300">{msg.timestamp}</span>
+                        </div>
+                        <div className={`max-w-[80%] px-8 py-5 rounded-[2rem] font-bold text-[16px] leading-relaxed shadow-sm ${msg.sender === 'user' ? 'bg-white border-2 border-slate-100 text-slate-700 rounded-tr-none' : 'bg-[#1a2333] text-white rounded-tl-none shadow-xl shadow-slate-900/10'}`}>
                             {msg.text}
                         </div>
                       </div>
                     )
                   ))}
+                  
+                  {/* STREAMING CHUNKS */}
+                  {currentInputText && (
+                    <div className="flex flex-col items-end animate-pulse">
+                       <span className="text-[10px] font-black uppercase tracking-widest mb-2 text-slate-300">Processing Audio...</span>
+                       <div className="max-w-[80%] px-8 py-5 bg-white border-2 border-slate-100 border-dashed rounded-[2rem] rounded-tr-none font-bold text-[16px] text-slate-400">
+                          {currentInputText}
+                       </div>
+                    </div>
+                  )}
+
+                  {currentOutputText && (
+                    <div className="flex flex-col items-start animate-pulse">
+                       <span className="text-[10px] font-black uppercase tracking-widest mb-2 text-blue-300">Generating Voice...</span>
+                       <div className="max-w-[80%] px-8 py-5 bg-blue-50 border-2 border-blue-100 border-dashed rounded-[2rem] rounded-tl-none font-bold text-[16px] text-[#004a99]">
+                          {currentOutputText}
+                       </div>
+                    </div>
+                  )}
+
+                  {!transcript.length && !currentInputText && !currentOutputText && (
+                    <div className="h-full flex flex-col items-center justify-center gap-6 opacity-30">
+                       <div className="w-16 h-16 border-4 border-slate-200 border-t-[#004a99] rounded-full animate-spin"></div>
+                       <p className="text-slate-400 font-black text-xs tracking-[0.4em] uppercase text-center max-w-[240px] leading-relaxed">
+                         Awaiting Secure Voice Input
+                       </p>
+                    </div>
+                  )}
                   <div ref={transcriptEndRef} />
                </div>
             </div>
@@ -435,15 +482,18 @@ const DrHVACVoiceAgent: React.FC = () => {
             <Visualizer isActive={isConnected} audioContext={inputAudioContextRef.current} sourceNode={inputSourceRef.current} />
 
             <div className="flex flex-col items-center gap-10">
-              <button onClick={handleDisconnect} className="flex items-center justify-center w-32 h-32 bg-black text-white rounded-full shadow-2xl transition-all hover:bg-red-700 hover:scale-110 active:scale-95 group">
+              <button onClick={handleDisconnect} className="flex items-center justify-center w-32 h-32 bg-black text-white rounded-full shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] transition-all hover:bg-red-700 hover:scale-110 active:scale-95 group">
                  <svg className="w-14 h-14 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
           </div>
           
-          <div className="bg-slate-50 px-16 py-10 border-t border-slate-100 flex items-center justify-between opacity-60">
-             <span className="text-[13px] text-black font-[900] uppercase tracking-[0.6em]">Secure AI Line 082</span>
-             <span className="text-[13px] text-black font-[900] uppercase tracking-[0.4em]">Official Dr. HVAC Support</span>
+          <div className="bg-slate-50 px-16 py-12 border-t border-slate-100 flex items-center justify-between">
+             <div className="flex items-center gap-4">
+               <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+               <span className="text-[13px] text-slate-400 font-black uppercase tracking-[0.6em]">Secure AI Line 082</span>
+             </div>
+             <span className="text-[13px] text-slate-400 font-black uppercase tracking-[0.4em]">Official Dr. HVAC Support</span>
           </div>
         </div>
       )}
