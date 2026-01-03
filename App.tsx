@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import DrHVACVoiceAgent from './components/DrHVACVoiceAgent';
 import FAQSection from './components/FAQSection';
 
 const App: React.FC = () => {
+  const [activeLegalContent, setActiveLegalContent] = useState<{ title: string; body: string } | null>(null);
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -14,6 +16,24 @@ const App: React.FC = () => {
         setTimeout(() => element.classList.remove('ring-[12px]', 'ring-orange-500/10'), 1500);
       }
     }
+  };
+
+  const showLegal = (type: 'privacy' | 'terms' | 'map') => {
+    const contents = {
+      privacy: {
+        title: "Privacy Policy",
+        body: "Dr. HVAC respects your privacy. We collect information such as your home address, contact details, and current heating system specs (Oil, Electric, or Gas) specifically to evaluate your eligibility for the $7,500 Heat Pump Rebate program and to ensure accurate dispatch of our technicians across the GTA. We never sell your data to third-party marketers."
+      },
+      terms: {
+        title: "Terms of Service",
+        body: "Our 4-hour emergency response guarantee applies to critical HVAC failures (No Heat in Winter / No AC in Extreme Heat) within our primary service zones. Dispatch priority is managed by Mike our Emergency Lead. Diagnostic fees are waived if we fail to arrive within the promised window. All installations are performed by licensed TSSA-certified technicians."
+      },
+      map: {
+        title: "Service Map",
+        body: "Dr. HVAC & Plumbing is Toronto's primary official service provider. Our active service territory covers the entire Greater Toronto Area, including: Old Toronto, North York, Etobicoke, Scarborough, Mississauga, Brampton, Vaughan, Markham, and Richmond Hill."
+      }
+    };
+    setActiveLegalContent(contents[type]);
   };
 
   return (
@@ -43,18 +63,18 @@ const App: React.FC = () => {
         {/* Logo & Navigation */}
         <div className="w-full flex justify-between items-center mb-28">
            <div 
-             className="flex items-center gap-5 cursor-pointer group" 
+             className="flex items-center gap-6 cursor-pointer group" 
              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
            >
-              <div className="w-16 h-16 bg-[#f37021] rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-2xl shadow-orange-500/40 group-hover:scale-110 transition-all">Dr</div>
-              <div className="leading-none">
-                <p className="text-4xl font-black text-[#004a99] tracking-tighter uppercase leading-[0.8]">HVAC & PLUMBING</p>
-                <p className="text-[12px] font-black text-black/40 uppercase tracking-[0.5em] mt-2">TORONTO & GTA OFFICIAL SERVICE</p>
+              <div className="w-[72px] h-[72px] bg-[#f37021] rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-xl shadow-orange-500/20 group-hover:scale-105 transition-all">Dr</div>
+              <div className="flex flex-col">
+                <p className="text-[38px] font-black text-[#004a99] tracking-[-0.03em] uppercase leading-[0.9]">HVAC & PLUMBING</p>
+                <p className="text-[14px] font-[900] text-slate-400 uppercase tracking-[0.55em] mt-1.5 ml-0.5">TORONTO & GTA OFFICIAL SERVICE</p>
               </div>
            </div>
            
            <nav className="hidden lg:flex items-center gap-12 text-[15px] font-black uppercase tracking-widest text-[#004a99]">
-             <button className="hover:text-[#f37021] transition-all">Service Area</button>
+             <button onClick={() => showLegal('map')} className="hover:text-[#f37021] transition-all">Service Area</button>
              <button className="hover:text-[#f37021] transition-all">Reviews</button>
              <button 
                onClick={() => scrollToSection('sarah-agent')}
@@ -118,19 +138,44 @@ const App: React.FC = () => {
           <FAQSection />
         </div>
 
-        <footer className="w-full mt-32 py-20 border-t border-slate-100 flex flex-col items-center">
-           <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-sm">Dr</div>
-              <span className="font-black text-slate-900 tracking-tighter text-xl uppercase">HVAC & PLUMBING</span>
+        {/* REFINED FOOTER */}
+        <footer className="w-full mt-32 py-24 border-t border-slate-100 flex flex-col items-center">
+           <div className="flex items-center gap-5 mb-14">
+              <div className="w-12 h-12 bg-[#1a2333] rounded-[14px] flex items-center justify-center text-white font-black text-lg">Dr</div>
+              <span className="font-black text-[#1a2333] tracking-tight text-[28px] uppercase">HVAC & PLUMBING</span>
            </div>
-           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.5em] mb-4 text-center">© 2026 DR. HVAC OFFICIAL SITE — TORONTO, ONTARIO</p>
-           <div className="flex gap-8 text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">
-             <span className="cursor-pointer hover:text-slate-600">Privacy Policy</span>
-             <span className="cursor-pointer hover:text-slate-600">Terms of Service</span>
-             <span className="cursor-pointer hover:text-slate-600">Service Map</span>
+           
+           <div className="flex flex-col items-center text-center space-y-16">
+              <p className="text-[16px] md:text-[20px] font-black text-slate-700 uppercase tracking-[0.85em] leading-relaxed max-w-5xl px-4 opacity-90">
+                 © 2026 DR. HVAC OFFICIAL SITE — TORONTO, ONTARIO
+              </p>
+              
+              <div className="flex flex-wrap justify-center gap-12 md:gap-24 text-[14px] font-[900] text-slate-500 uppercase tracking-[0.45em]">
+                <button onClick={() => showLegal('privacy')} className="hover:text-[#004a99] transition-colors duration-300 border-b-2 border-transparent hover:border-[#004a99]/20 pb-1">Privacy Policy</button>
+                <button onClick={() => showLegal('terms')} className="hover:text-[#004a99] transition-colors duration-300 border-b-2 border-transparent hover:border-[#004a99]/20 pb-1">Terms of Service</button>
+                <button onClick={() => showLegal('map')} className="hover:text-[#004a99] transition-colors duration-300 border-b-2 border-transparent hover:border-[#004a99]/20 pb-1">Service Map</button>
+              </div>
            </div>
         </footer>
       </div>
+
+      {/* Simple Legal Modal */}
+      {activeLegalContent && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#1a2333]/80 backdrop-blur-xl animate-fade-in">
+          <div className="bg-white rounded-[4rem] p-16 max-w-2xl w-full shadow-2xl border-4 border-[#004a99]/10 animate-slide-up-fade">
+            <h3 className="text-4xl font-black text-[#004a99] mb-8 uppercase tracking-tighter">{activeLegalContent.title}</h3>
+            <p className="text-slate-600 text-xl font-bold leading-relaxed mb-12">
+              {activeLegalContent.body}
+            </p>
+            <button 
+              onClick={() => setActiveLegalContent(null)}
+              className="w-full py-6 bg-[#1a2333] text-white font-black text-[14px] uppercase tracking-widest rounded-2xl hover:bg-black transition-all shadow-xl shadow-slate-900/20"
+            >
+              CLOSE WINDOW
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

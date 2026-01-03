@@ -270,21 +270,21 @@ const DrHVACVoiceAgent: React.FC = () => {
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col gap-12">
       
-      {/* Refined Transparency / State Indicator */}
-      <div className="flex flex-row items-center justify-between gap-4 px-3 py-3 bg-white border border-slate-100/60 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.02)] animate-slide-up-fade">
-         <div className="flex items-center gap-4">
-           <div className="flex items-center gap-2.5 px-5 py-2.5 bg-[#f0f7ff] rounded-full border border-[#dceaff]">
-             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-             <span className="text-[11px] font-[900] text-[#004a99] uppercase tracking-[0.1em]">AI Assistants Online</span>
+      {/* PERFECT REPLICA Transparency / State Indicator */}
+      <div className="flex flex-row items-center justify-between gap-4 px-4 py-3 bg-white border border-slate-100/80 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.03)] animate-slide-up-fade">
+         <div className="flex items-center gap-6">
+           <div className="flex items-center gap-3 px-6 py-2.5 bg-[#f0f7ff] rounded-full border border-[#d2e4ff]">
+             <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] shadow-[0_0_10px_rgba(16,185,129,0.4)] animate-pulse"></div>
+             <span className="text-[11px] font-[900] text-[#004a99] uppercase tracking-[0.05em]">AI Assistants Online</span>
            </div>
-           <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.15em] hidden md:block">Ready to help 24/7</p>
+           <p className="text-[#94a3b8] font-bold text-[11px] uppercase tracking-[0.1em] hidden md:block">Ready to help 24/7</p>
          </div>
          
-         <div className="flex items-center gap-3 pr-2">
-           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Powered by</span>
-           <div className="flex items-center gap-2 px-3.5 py-2 bg-[#1a2333] rounded-xl shadow-lg">
-             <div className="w-3.5 h-3.5 bg-gradient-to-tr from-[#4285f4] to-[#34a853] rounded-[3px] shadow-sm"></div>
-             <span className="text-[10px] font-black text-white uppercase tracking-tighter">Gemini 2.5 Live</span>
+         <div className="flex items-center gap-4 pr-2">
+           <span className="text-[10px] font-black text-[#cbd5e1] uppercase tracking-[0.1em]">Powered by</span>
+           <div className="flex items-center gap-2.5 px-4 py-2 bg-[#1a2333] rounded-xl shadow-[0_8px_16px_rgba(0,0,0,0.15)] transition-transform hover:scale-105">
+             <div className="w-4 h-4 bg-gradient-to-br from-[#4285f4] via-[#9b72f3] to-[#34a853] rounded-md shadow-sm"></div>
+             <span className="text-[10px] font-black text-white uppercase tracking-tight">Gemini 2.5 Live</span>
            </div>
          </div>
       </div>
