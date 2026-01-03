@@ -85,6 +85,7 @@ const DrHVACVoiceAgent: React.FC = () => {
 
   const initAudioContexts = () => {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    // We create them with basic settings first to avoid constructor-level hardware rejection
     if (!inputAudioContextRef.current) inputAudioContextRef.current = new AudioContextClass({ sampleRate: 16000 });
     if (!outputAudioContextRef.current) outputAudioContextRef.current = new AudioContextClass({ sampleRate: 24000 });
   };
@@ -94,14 +95,23 @@ const DrHVACVoiceAgent: React.FC = () => {
       setIsError(false);
       setErrorMessage('');
 
+      // Check for mediaDevices support explicitly
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Microphone access is not supported in this browser or requires a secure (HTTPS) connection.');
+        throw new Error('Microphone access is not supported in this browser environment. Please use a modern browser (Chrome, Edge, Safari) over HTTPS.');
+      }
+
+      // Try to list devices first to see if any exist (doesn't require permission yet)
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasAudioInput = devices.some(device => device.kind === 'audioinput');
+      
+      if (!hasAudioInput && devices.length > 0) {
+         // Some browsers don't show kind until permission is granted, but if devices.length > 0 we can proceed
       }
 
       setActiveAgent(agentKey);
       
-      // Requesting audio with minimal constraints to ensure maximum compatibility.
-      // We will handle resampling via the AudioContext.
+      // Requesting audio with minimal constraints. 
+      // If {audio: true} fails, the hardware or OS is likely blocking the request.
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
 
@@ -124,7 +134,7 @@ const DrHVACVoiceAgent: React.FC = () => {
           onerror: (e) => {
             console.error('Gemini Live error:', e);
             setIsError(true);
-            setErrorMessage('The connection was interrupted. Please try again.');
+            setErrorMessage('Network connection lost. Please try again.');
             resetConnection();
           }
         },
@@ -141,16 +151,22 @@ const DrHVACVoiceAgent: React.FC = () => {
       sessionPromiseRef.current = sessionPromise;
 
     } catch (err: any) {
-      console.error('Connection Error:', err);
+      console.error('Mic/Connection Error:', err);
       setIsError(true);
       setActiveAgent(null);
       
-      if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        setErrorMessage('No microphone found. Please connect one and try again.');
-      } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setErrorMessage('Microphone access denied. Please enable permissions in your browser.');
+      // Map specific browser error names to human-friendly advice
+      const errorName = err.name || '';
+      const lowerMsg = (err.message || '').toLowerCase();
+
+      if (errorName === 'NotFoundError' || errorName === 'DevicesNotFoundError' || lowerMsg.includes('not found')) {
+        setErrorMessage('Requested Device Not Found. Please plug in a microphone or headset and try again.');
+      } else if (errorName === 'NotAllowedError' || errorName === 'PermissionDeniedError' || lowerMsg.includes('permission')) {
+        setErrorMessage('Microphone access denied. Please click the "lock" icon in your URL bar and allow microphone access.');
+      } else if (errorName === 'OverconstrainedError') {
+        setErrorMessage('Your microphone does not support the required settings. Please try a different device.');
       } else {
-        setErrorMessage(err.message || 'Unable to access your microphone.');
+        setErrorMessage(err.message || 'Unable to start the session. Please check your microphone settings.');
       }
     }
   };
@@ -347,11 +363,14 @@ const DrHVACVoiceAgent: React.FC = () => {
       )}
 
       {isError && (
-        <div className="max-w-md mx-auto bg-red-50 border-2 border-red-100 p-6 rounded-3xl text-center">
-          <p className="text-red-700 font-black text-sm uppercase tracking-widest">{errorMessage}</p>
+        <div className="max-w-md mx-auto bg-red-50 border-2 border-red-100 p-8 rounded-[2.5rem] text-center shadow-xl animate-slide-up-fade">
+          <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+          </div>
+          <p className="text-red-800 font-black text-[13px] uppercase tracking-widest leading-relaxed mb-6">{errorMessage}</p>
           <button 
             onClick={() => setIsError(false)} 
-            className="mt-4 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 border-b border-slate-200"
+            className="text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 border-b-2 border-slate-200 transition-all"
           >
             Dismiss
           </button>

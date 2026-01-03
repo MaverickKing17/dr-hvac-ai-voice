@@ -75,28 +75,23 @@ const App: React.FC = () => {
           <DrHVACVoiceAgent />
         </div>
 
-        {/* TRUST BADGE SECTION */}
-        <div className="w-full max-w-6xl mt-24 mb-24">
-          <div className="flex justify-center items-center">
-             
-             {/* Verified Trust Badge */}
-             <a 
-               href="https://www.drhvac.ca/guarantee/" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="flex flex-col items-center group text-center p-12 bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl transition-all hover:shadow-orange-500/20 hover:-translate-y-2 hover:border-orange-400 w-full max-w-sm"
-             >
-                <div className="mb-6">
-                  <span className="text-6xl font-black text-black tracking-tighter block group-hover:text-[#f37021] transition-colors">100%</span>
-                </div>
-                <div className="px-8 py-3 bg-orange-50 rounded-2xl border-2 border-orange-500/30 mb-4 shadow-sm">
-                  <span className="text-[14px] font-black uppercase tracking-[0.2em] text-[#f37021]">SATISFACTION PROMISE</span>
-                </div>
-                <p className="mt-6 text-[13px] font-black text-black/60 uppercase tracking-widest">MONEY BACK GUARANTEE</p>
-             </a>
+        {/* TRUST BADGE SECTION - Updated to match screenshot */}
+        <div className="w-full max-w-6xl mt-24 mb-24 flex flex-col items-center">
+           <div className="bg-white rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border-2 border-slate-50 p-12 w-full max-w-md flex flex-col items-center text-center transition-all hover:shadow-xl group">
+              <span className="text-7xl font-black text-black tracking-tighter mb-8 group-hover:scale-105 transition-transform">100%</span>
+              
+              <div className="bg-orange-50/50 border-2 border-orange-200 rounded-[1.5rem] px-8 py-4 mb-8">
+                 <p className="text-[#f37021] font-black text-[13px] uppercase tracking-[0.25em] leading-tight">
+                    SATISFACTION<br/>PROMISE
+                 </p>
+              </div>
 
-          </div>
-          <p className="text-center mt-12 text-[13px] font-black text-black/40 uppercase tracking-[0.6em] animate-pulse">DR. HVAC OFFICIAL SERVICE GUARANTEE</p>
+              <p className="text-slate-500 font-black text-[11px] uppercase tracking-[0.2em]">MONEY BACK GUARANTEE</p>
+           </div>
+           
+           <p className="mt-16 text-[12px] font-black text-slate-400 uppercase tracking-[0.5em] animate-pulse">
+              DR. HVAC OFFICIAL SERVICE GUARANTEE
+           </p>
         </div>
 
         <div id="faq-section" className="w-full">
