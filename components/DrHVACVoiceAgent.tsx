@@ -91,16 +91,22 @@ const DrHVACVoiceAgent: React.FC = () => {
 
   const connectToGemini = async (agentKey: AgentType) => {
     try {
-      setActiveAgent(agentKey);
       setIsError(false);
       setErrorMessage('');
-      initAudioContexts();
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Microphone access is not supported in this browser or requires a secure (HTTPS) connection.');
+      }
+
+      setActiveAgent(agentKey);
       
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 16000 } 
-      });
+      // Requesting audio with minimal constraints to ensure maximum compatibility.
+      // We will handle resampling via the AudioContext.
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
 
+      initAudioContexts();
+      
       const agent = AGENTS[agentKey];
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const sessionPromise = ai.live.connect({
@@ -115,9 +121,10 @@ const DrHVACVoiceAgent: React.FC = () => {
             await handleServerMessage(message);
           },
           onclose: () => resetConnection(),
-          onerror: () => {
+          onerror: (e) => {
+            console.error('Gemini Live error:', e);
             setIsError(true);
-            setErrorMessage('Connection interrupted.');
+            setErrorMessage('The connection was interrupted. Please try again.');
             resetConnection();
           }
         },
@@ -134,8 +141,17 @@ const DrHVACVoiceAgent: React.FC = () => {
       sessionPromiseRef.current = sessionPromise;
 
     } catch (err: any) {
+      console.error('Connection Error:', err);
       setIsError(true);
-      setErrorMessage(err.message || 'Mic access denied.');
+      setActiveAgent(null);
+      
+      if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setErrorMessage('No microphone found. Please connect one and try again.');
+      } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setErrorMessage('Microphone access denied. Please enable permissions in your browser.');
+      } else {
+        setErrorMessage(err.message || 'Unable to access your microphone.');
+      }
     }
   };
 
@@ -333,7 +349,12 @@ const DrHVACVoiceAgent: React.FC = () => {
       {isError && (
         <div className="max-w-md mx-auto bg-red-50 border-2 border-red-100 p-6 rounded-3xl text-center">
           <p className="text-red-700 font-black text-sm uppercase tracking-widest">{errorMessage}</p>
-          <button onClick={() => setIsError(false)} className="mt-4 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900">Dismiss</button>
+          <button 
+            onClick={() => setIsError(false)} 
+            className="mt-4 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 border-b border-slate-200"
+          >
+            Dismiss
+          </button>
         </div>
       )}
     </div>
