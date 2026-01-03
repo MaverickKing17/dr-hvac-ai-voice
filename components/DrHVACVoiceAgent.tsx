@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Type, FunctionDeclaration } from '@google/genai';
 import { createPcmBlob, base64ToArrayBuffer, decodeAudioData } from '../utils/audio-utils';
 import Visualizer from './Visualizer';
@@ -12,14 +12,8 @@ const updateRebateDisplayDeclaration: FunctionDeclaration = {
     type: Type.OBJECT,
     description: 'Update the visual display with the qualified rebate amount and heating source.',
     properties: {
-      amount: {
-        type: Type.NUMBER,
-        description: 'The rebate amount in dollars.',
-      },
-      sourceType: {
-        type: Type.STRING,
-        description: 'The customer heating source (Gas, Oil, or Electric).',
-      },
+      amount: { type: Type.NUMBER, description: 'The rebate amount in dollars.' },
+      sourceType: { type: Type.STRING, description: 'The customer heating source (Gas, Oil, or Electric).' },
     },
     required: ['amount', 'sourceType'],
   },
@@ -31,37 +25,48 @@ const confirmEmergencyBookingDeclaration: FunctionDeclaration = {
     type: Type.OBJECT,
     description: 'Visually confirm an emergency repair booking on the interface.',
     properties: {
-      issue: {
-        type: Type.STRING,
-        description: 'Brief description of the HVAC issue.',
-      },
-      guaranteeTime: {
-        type: Type.STRING,
-        description: 'The promised response window (4 hours).',
-      },
+      issue: { type: Type.STRING, description: 'Brief description of the HVAC issue.' },
+      guaranteeTime: { type: Type.STRING, description: 'The promised response window (4 hours).' },
     },
     required: ['issue', 'guaranteeTime'],
   },
 };
 
-const SYSTEM_INSTRUCTION = `
-Role: You are Sarah, the AI Lead Specialist for Dr. HVAC. You are warm and professional.
-Tone: Helpful, efficient, local expert.
-Rebates: Up to $7,500 (Oil/Electric switching to Heat Pump) or $2,000 (Gas).
-Emergency: 4-hour response guarantee.
-`;
+type AgentType = 'SARAH' | 'MIKE';
 
-interface RebateInfo {
-  amount: number;
-  sourceType: string;
+interface AgentConfig {
+  name: string;
+  role: string;
+  instruction: string;
+  voice: string;
+  theme: string;
+  accent: string;
 }
 
-interface EmergencyInfo {
-  issue: string;
-  guaranteeTime: string;
-}
+const AGENTS: Record<AgentType, AgentConfig> = {
+  SARAH: {
+    name: 'Sarah',
+    role: 'Reception Specialist',
+    instruction: "Role: You are Sarah, Reception Specialist for Dr. HVAC. Tone: Warm, professional, helpful. Focus: General inquiries, furnace/AC quotes, and identifying $7,500 rebate eligibility.",
+    voice: 'Kore',
+    theme: 'bg-[#004a99]',
+    accent: 'text-[#f37021]',
+  },
+  MIKE: {
+    name: 'Mike',
+    role: 'Emergency Dispatch',
+    instruction: "Role: You are Mike, Emergency Dispatcher for Dr. HVAC. Tone: Calm, decisive, urgent. Focus: Handling critical failures (no heat in winter, leaks). Emphasize the 4-hour response guarantee.",
+    voice: 'Puck',
+    theme: 'bg-[#1a2333]',
+    accent: 'text-red-500',
+  }
+};
+
+interface RebateInfo { amount: number; sourceType: string; }
+interface EmergencyInfo { issue: string; guaranteeTime: string; }
 
 const DrHVACVoiceAgent: React.FC = () => {
+  const [activeAgent, setActiveAgent] = useState<AgentType | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -84,12 +89,11 @@ const DrHVACVoiceAgent: React.FC = () => {
     if (!outputAudioContextRef.current) outputAudioContextRef.current = new AudioContextClass({ sampleRate: 24000 });
   };
 
-  const connectToGemini = async () => {
+  const connectToGemini = async (agentKey: AgentType) => {
     try {
+      setActiveAgent(agentKey);
       setIsError(false);
       setErrorMessage('');
-      setQualifiedRebate(null);
-      setEmergencyBooking(null);
       initAudioContexts();
       
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -97,6 +101,7 @@ const DrHVACVoiceAgent: React.FC = () => {
       });
       mediaStreamRef.current = stream;
 
+      const agent = AGENTS[agentKey];
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const sessionPromise = ai.live.connect({
         model: MODEL_NAME,
@@ -109,25 +114,19 @@ const DrHVACVoiceAgent: React.FC = () => {
           onmessage: async (message: LiveServerMessage) => {
             await handleServerMessage(message);
           },
-          onclose: () => {
-            setIsConnected(false);
-            activeRef.current = false;
-            stopAudio();
-          },
+          onclose: () => resetConnection(),
           onerror: () => {
             setIsError(true);
-            setErrorMessage('Connection lost.');
-            setIsConnected(false);
-            activeRef.current = false;
-            stopAudio();
+            setErrorMessage('Connection interrupted.');
+            resetConnection();
           }
         },
         config: {
           responseModalities: [Modality.AUDIO],
-          systemInstruction: SYSTEM_INSTRUCTION,
+          systemInstruction: agent.instruction,
           tools: [{ functionDeclarations: [updateRebateDisplayDeclaration, confirmEmergencyBookingDeclaration] }],
           speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } }
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: agent.voice } }
           }
         }
       });
@@ -136,8 +135,14 @@ const DrHVACVoiceAgent: React.FC = () => {
 
     } catch (err: any) {
       setIsError(true);
-      setErrorMessage(err.message || 'Failed to start call.');
+      setErrorMessage(err.message || 'Mic access denied.');
     }
+  };
+
+  const resetConnection = () => {
+    setIsConnected(false);
+    activeRef.current = false;
+    stopAudio();
   };
 
   const startAudioInput = (stream: MediaStream) => {
@@ -180,10 +185,13 @@ const DrHVACVoiceAgent: React.FC = () => {
       source.connect(ctx.destination);
       source.start(startTime);
       nextStartTimeRef.current = startTime + audioBuffer.duration;
+      sourcesRef.current.add(source);
+      source.onended = () => sourcesRef.current.delete(source);
     }
 
     if (message.serverContent?.interrupted) {
       sourcesRef.current.forEach(s => { try { s.stop(); } catch {} });
+      sourcesRef.current.clear();
       nextStartTimeRef.current = 0;
     }
   };
@@ -194,103 +202,140 @@ const DrHVACVoiceAgent: React.FC = () => {
     mediaStreamRef.current?.getTracks().forEach(t => t.stop());
   };
 
+  const handleDisconnect = () => {
+    sessionPromiseRef.current?.then(s => s.close());
+    resetConnection();
+    setActiveAgent(null);
+  };
+
   return (
-    <div className="bg-white rounded-[2.5rem] shadow-[0_40px_80px_rgba(0,0,0,0.1)] overflow-hidden border-2 border-slate-200 max-w-xl w-full mx-auto flex flex-col transition-all duration-300">
+    <div className="w-full max-w-5xl mx-auto flex flex-col gap-12">
       
-      {/* Dr. HVAC Branded Header */}
-      <div className="bg-[#004a99] p-10 text-white text-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-           <svg className="w-32 h-32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
-        </div>
-        <div className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-full mx-auto flex items-center justify-center mb-6 border-2 border-white/20 relative z-10">
-           <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-           </svg>
-        </div>
-        <h2 className="text-3xl font-black mb-1 tracking-tight relative z-10 uppercase">Talk to Sarah</h2>
-        <p className="text-white/70 text-[13px] font-black uppercase tracking-[0.4em] relative z-10">Reception Specialist</p>
-      </div>
-
-      <div className="p-10 flex flex-col items-center space-y-8">
-        {/* Dynamic Boxes */}
-        <div className="w-full space-y-4">
-          {qualifiedRebate && (
-            <div className="dashed-card p-6 flex items-center justify-between animate-slide-up-fade bg-[#fcfdfe] border-2 border-[#004a99]/10">
-               <div className="flex items-center gap-6">
-                 <div className="w-14 h-14 bg-[#f37021] rounded-full flex items-center justify-center text-white shadow-lg">
-                   <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                 </div>
-                 <div>
-                   <p className="text-[11px] text-black/50 font-black uppercase tracking-widest">Qualified Rebate</p>
-                   <p className="text-4xl font-black text-black tracking-tighter">${qualifiedRebate.amount.toLocaleString()}</p>
-                 </div>
-               </div>
-               <div className="text-right">
-                  <span className="inline-block px-4 py-2 bg-blue-50 text-[#004a99] text-[12px] font-black rounded-lg border border-blue-200 uppercase tracking-widest">{qualifiedRebate.sourceType}</span>
-               </div>
-            </div>
-          )}
-
-          {emergencyBooking && (
-            <div className="dashed-card p-6 flex items-center justify-between animate-slide-up-fade bg-red-50 border-2 border-red-100">
-               <div className="flex items-center gap-6">
-                 <div className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center text-white shadow-lg">
-                   <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                 </div>
-                 <div>
-                   <p className="text-[11px] text-red-800/60 font-black uppercase tracking-widest">Emergency Dispatch</p>
-                   <p className="text-xl font-black text-black tracking-tight">{emergencyBooking.issue}</p>
-                 </div>
-               </div>
-               <div className="text-right">
-                  <p className="text-[13px] font-black text-white bg-red-700 px-4 py-2 rounded-lg uppercase tracking-widest">{emergencyBooking.guaranteeTime}</p>
-               </div>
-            </div>
-          )}
-        </div>
-
-        <Visualizer 
-          isActive={isConnected} 
-          audioContext={inputAudioContextRef.current}
-          sourceNode={inputSourceRef.current}
-        />
-
-        <div className="text-center h-6">
-           {isConnected ? (
-             <div className="flex items-center gap-3">
-               <span className="w-3 h-3 bg-[#f37021] rounded-full animate-pulse"></span>
-               <p className="text-[#f37021] text-[13px] font-black uppercase tracking-[0.4em]">Live Conversation</p>
-             </div>
-           ) : (
-             <p className="text-black/40 text-[13px] font-black uppercase tracking-[0.3em]">Sarah is Ready</p>
-           )}
-        </div>
-
-        {/* Action Button */}
-        {!isConnected ? (
-          <button
-            onClick={connectToGemini}
-            className="group relative flex items-center justify-center w-32 h-32 bg-[#f37021] hover:bg-[#e05e1a] text-white rounded-full shadow-2xl transition-all transform hover:scale-110 active:scale-95"
+      {!isConnected ? (
+        <div className="grid md:grid-cols-2 gap-8 animate-slide-up-fade">
+          {/* Sarah Selector */}
+          <button 
+            onClick={() => connectToGemini('SARAH')}
+            className="group bg-white rounded-[2.5rem] border-2 border-slate-100 p-8 text-left transition-all hover:border-[#004a99] hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full"
           >
-             <div className="absolute inset-0 rounded-full bg-[#f37021] animate-ping opacity-20 group-hover:hidden"></div>
-             <svg className="w-14 h-14 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-             </svg>
+            <div className="w-16 h-16 bg-[#004a99] rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg group-hover:scale-110 transition-transform">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 mb-2">Speak to Sarah</h3>
+            <p className="text-[#004a99] text-[11px] font-black uppercase tracking-[0.3em] mb-4">Reception Specialist</p>
+            <p className="text-slate-600 font-medium leading-relaxed mb-8 flex-grow">
+              Expert in new installations, general quotes, and 2026 Energy Savings rebates up to $7,500.
+            </p>
+            <div className="flex items-center gap-3 text-[#f37021] font-black uppercase text-[12px] tracking-widest">
+              <span>Start Conversation</span>
+              <svg className="w-4 h-4 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            </div>
           </button>
-        ) : (
-          <button
-            onClick={() => setIsConnected(false)}
-            className="flex items-center justify-center w-24 h-24 bg-black text-white rounded-full shadow-xl transition-all hover:bg-red-700 hover:scale-105 active:scale-95"
+
+          {/* Mike Selector */}
+          <button 
+            onClick={() => connectToGemini('MIKE')}
+            className="group bg-white rounded-[2.5rem] border-2 border-slate-100 p-8 text-left transition-all hover:border-red-600 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full"
           >
-             <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M6 18L18 6M6 6l12 12" /></svg>
+            <div className="w-16 h-16 bg-[#1a2333] rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg group-hover:scale-110 transition-transform">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 mb-2">Speak to Mike</h3>
+            <p className="text-red-600 text-[11px] font-black uppercase tracking-[0.3em] mb-4">Emergency Dispatch</p>
+            <p className="text-slate-600 font-medium leading-relaxed mb-8 flex-grow">
+              Handling urgent repairs with our 4-hour response guarantee. No heat? Leaking pipes? Talk to Mike.
+            </p>
+            <div className="flex items-center gap-3 text-red-600 font-black uppercase text-[12px] tracking-widest">
+              <span>Priority Dispatch</span>
+              <svg className="w-4 h-4 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            </div>
           </button>
-        )}
-      </div>
-      
-      <div className="bg-slate-50 px-10 py-6 border-t border-slate-100 flex items-center justify-between">
-         <span className="text-[11px] text-black/40 font-black uppercase tracking-[0.4em]">Dr. HVAC AI Specialist</span>
-         <span className="text-[11px] text-black/40 font-black uppercase tracking-[0.2em]">GTA Service Area</span>
-      </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.12)] overflow-hidden border-2 border-slate-100 max-w-2xl w-full mx-auto animate-slide-up-fade">
+          {/* Active Agent Header */}
+          <div className={`${activeAgent ? AGENTS[activeAgent].theme : 'bg-slate-800'} p-10 text-white text-center relative`}>
+            <div className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-full mx-auto flex items-center justify-center mb-6 border-2 border-white/20">
+               <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {activeAgent === 'SARAH' ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  )}
+               </svg>
+            </div>
+            <h2 className="text-3xl font-black mb-1 uppercase tracking-tight">Talking to {activeAgent && AGENTS[activeAgent].name}</h2>
+            <p className="text-white/60 text-[12px] font-black uppercase tracking-[0.4em]">{activeAgent && AGENTS[activeAgent].role}</p>
+          </div>
+
+          <div className="p-10 space-y-8">
+            {/* Visual Feedback Area */}
+            <div className="w-full min-h-[100px] flex flex-col gap-4">
+              {qualifiedRebate && activeAgent === 'SARAH' && (
+                <div className="dashed-card p-6 flex items-center justify-between animate-slide-up-fade bg-blue-50/50 border-2 border-blue-100">
+                   <div className="flex items-center gap-6">
+                     <div className="w-12 h-12 bg-[#f37021] rounded-full flex items-center justify-center text-white shadow-lg">
+                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                     </div>
+                     <div>
+                       <p className="text-[10px] text-black/40 font-black uppercase tracking-widest">Rebate Qualification</p>
+                       <p className="text-3xl font-black text-black tracking-tighter">${qualifiedRebate.amount.toLocaleString()}</p>
+                     </div>
+                   </div>
+                   <span className="px-3 py-1 bg-blue-100 text-[#004a99] text-[11px] font-black rounded-lg uppercase tracking-widest">{qualifiedRebate.sourceType}</span>
+                </div>
+              )}
+
+              {emergencyBooking && (
+                <div className="dashed-card p-6 flex items-center justify-between animate-slide-up-fade bg-red-50 border-2 border-red-100">
+                   <div className="flex items-center gap-6">
+                     <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white shadow-lg">
+                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                     </div>
+                     <div>
+                       <p className="text-[10px] text-red-800/50 font-black uppercase tracking-widest">Priority Dispatch</p>
+                       <p className="text-lg font-black text-black tracking-tight">{emergencyBooking.issue}</p>
+                     </div>
+                   </div>
+                   <p className="text-[12px] font-black text-white bg-red-700 px-3 py-1 rounded-lg uppercase tracking-widest">{emergencyBooking.guaranteeTime}</p>
+                </div>
+              )}
+            </div>
+
+            <Visualizer 
+              isActive={isConnected} 
+              audioContext={inputAudioContextRef.current}
+              sourceNode={inputSourceRef.current}
+            />
+
+            <div className="flex flex-col items-center gap-8">
+              <div className="flex items-center gap-3">
+                 <span className={`w-3 h-3 rounded-full animate-pulse ${activeAgent === 'MIKE' ? 'bg-red-500' : 'bg-[#f37021]'}`}></span>
+                 <p className={`${activeAgent === 'MIKE' ? 'text-red-600' : 'text-[#f37021]'} text-[13px] font-black uppercase tracking-[0.4em]`}>Conversation Live</p>
+              </div>
+
+              <button
+                onClick={handleDisconnect}
+                className="flex items-center justify-center w-24 h-24 bg-black text-white rounded-full shadow-2xl transition-all hover:bg-red-700 hover:scale-110 active:scale-95 group"
+              >
+                 <svg className="w-10 h-10 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+          </div>
+          
+          <div className="bg-slate-50 px-10 py-6 border-t border-slate-100 flex items-center justify-between">
+             <span className="text-[10px] text-black/40 font-black uppercase tracking-[0.4em]">Dr. HVAC Secure Line</span>
+             <span className="text-[10px] text-black/40 font-black uppercase tracking-[0.2em]">Toronto & GTA</span>
+          </div>
+        </div>
+      )}
+
+      {isError && (
+        <div className="max-w-md mx-auto bg-red-50 border-2 border-red-100 p-6 rounded-3xl text-center">
+          <p className="text-red-700 font-black text-sm uppercase tracking-widest">{errorMessage}</p>
+          <button onClick={() => setIsError(false)} className="mt-4 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900">Dismiss</button>
+        </div>
+      )}
     </div>
   );
 };

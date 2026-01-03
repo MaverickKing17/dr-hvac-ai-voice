@@ -54,20 +54,20 @@ const App: React.FC = () => {
                onClick={() => scrollToSection('sarah-agent')}
                className="bg-[#f37021] text-white px-10 py-5 rounded-xl shadow-xl shadow-orange-500/40 transform hover:-translate-y-1 active:translate-y-0 transition-all font-black text-[15px] uppercase tracking-tight"
              >
-               GET A QUOTE
+               BOOK NOW
              </button>
            </nav>
         </div>
 
         {/* Hero Section */}
         <div className="text-center mb-16 animate-slide-up-fade">
-           <p className="text-[14px] text-[#f37021] font-black uppercase tracking-[0.5em] mb-6">TORONTO SPECIALS & REBATES</p>
+           <p className="text-[14px] text-[#f37021] font-black uppercase tracking-[0.5em] mb-6">24/7 EXPERT SUPPORT</p>
            <h1 className="text-5xl md:text-7xl font-black text-black tracking-tighter mb-8 leading-[0.9]">
-             CLAIM YOUR 2026<br/>
-             <span className="text-[#004a99]">ENERGY SAVINGS.</span>
+             CHOOSE YOUR<br/>
+             <span className="text-[#004a99]">SPECIALIST.</span>
            </h1>
            <p className="text-slate-800 font-bold max-w-3xl mx-auto leading-relaxed text-xl md:text-2xl px-4">
-             Talk to Sarah. Our AI Specialist is online now to qualify you for $7,500 in government rebates.
+             Talk to Sarah for rebates and quotes, or Mike for emergency dispatch and our 4-hour response guarantee.
            </p>
         </div>
 
