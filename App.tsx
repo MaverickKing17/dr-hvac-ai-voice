@@ -49,31 +49,7 @@ const App: React.FC = () => {
               </div>
            </div>
            
-           <nav className="hidden lg:flex items-center gap-10 text-[14px] font-black uppercase tracking-widest text-[#004a99]">
-             <a 
-               href="https://www.drhvac.ca/heating/" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1 cursor-pointer"
-             >
-               Heating
-             </a>
-             <a 
-               href="https://www.drhvac.ca/air-conditioning/" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1 cursor-pointer"
-             >
-               Cooling
-             </a>
-             <a 
-               href="https://www.drhvac.ca/promotions-rebates/" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               className="hover:text-[#f37021] transition-colors border-b-2 border-transparent hover:border-[#f37021] pb-1 cursor-pointer"
-             >
-               Rebates
-             </a>
+           <nav className="hidden lg:flex items-center text-[14px] font-black uppercase tracking-widest text-[#004a99]">
              <button 
                onClick={() => scrollToSection('sarah-agent')}
                className="bg-[#f37021] text-white px-10 py-5 rounded-xl shadow-xl shadow-orange-500/40 transform hover:-translate-y-1 active:translate-y-0 transition-all font-black text-[15px] uppercase tracking-tight"
